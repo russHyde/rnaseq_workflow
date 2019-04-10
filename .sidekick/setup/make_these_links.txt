@@ -1,0 +1,33 @@
+# Links that must be made before running the current job
+# File format:
+# - ^# This is a comment$
+# - <BLANK LINES ARE DROPPED>
+# - ^path/to/target/file ./local/path/to/linkname$
+# - ~/tildes/are/valid
+# - one line per link
+#
+# Relative paths for the targets should be written WRT the working directory
+# for the current project (not WRT the subdirectory in which the link will be
+# stored or the subdirectory in which make_these_links.txt is stored) ie,
+# "../../some.target ./subdir/some.link" results in the link
+# "./subdir/some.link -> ../../../some.target" when viewed with "ls -l"
+
+# Example:
+# ~/ext_data/GEOquery ./data/ext/GEOquery
+# ../../some.target ./subdir/some.link
+
+# Raw data should be in fastq folder
+# - .../fastq/<sample_id>/<run_id><some_suffix>.fastq.gz
+../../data/int/fastq   ./data/int/fastq
+
+# A job-specific data folder for each substep of this workflow should exist
+../../data/job/rnaseq_workflow/prefilter   ./data/job/prefilter
+../../data/job/rnaseq_workflow/align   ./data/job/align
+../../data/job/rnaseq_workflow/qc   ./data/job/qc
+../../data/job/rnaseq_workflow/diffex   ./data/job/diffex
+../../data/job/rnaseq_workflow/systems   ./data/job/systems
+
+# Configs for the rnaseq_workflow subjob should be obtained from
+#   <main_job>/subjobs/subjob_configs/rnaseq_workflow
+../subjob_configs/rnaseq_workflow   ./conf
+
