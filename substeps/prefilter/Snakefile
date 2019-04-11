@@ -1,0 +1,11 @@
+rule all:
+    input:
+        "docs/fake_report.pdf"
+
+rule faker:
+    output:
+        "docs/fake_report.pdf"
+    shell:
+        """
+        touch docs/fake_report.pdf
+        """
