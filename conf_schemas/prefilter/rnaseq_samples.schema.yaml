@@ -15,7 +15,7 @@ properties:
     type: string
 
   lane_id:
-    type: number
+    type: string
 
   fq1:
     type: string
