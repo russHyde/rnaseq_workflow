@@ -1,0 +1,12 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: command line options for programs used in the RNA-Seq workflow
+
+type: object
+
+properties:
+  cutadapt-pe:
+    type: string
+
+required:
+  - cutadapt-pe
