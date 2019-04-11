@@ -28,6 +28,6 @@
 ../../data/job/rnaseq_workflow/systems   ./data/job/systems
 
 # Configs for the rnaseq_workflow subjob should be obtained from
-#   <main_job>/subjobs/subjob_configs/rnaseq_workflow
-../subjob_configs/rnaseq_workflow   ./conf
+#   <main_job>/conf/rnaseq_workflow
+../../conf/rnaseq_workflow   ./conf
 
