@@ -35,4 +35,14 @@
 
 # No ./conf should preexist in the rnaseq_workflow subjob: this is made as  a
 # link. The user should specify job-specific values using
-# <main_job>/subjobs/subjob_configs/rnaseq_workflow/<specific config files>
+# <main_job>/conf/rnaseq_workflow/<specific config files>
+
+# Data directories required by this workflow are specified as subdirs of
+# <rnaseq_workflow>/data/job/; where the latter is a link to the main-project's
+# directory: <main_project>/data/job/rnaseq_workflow/
+
+./data/job/align
+./data/job/diffex
+./data/job/prefilter
+./data/job/qc
+./data/job/systems

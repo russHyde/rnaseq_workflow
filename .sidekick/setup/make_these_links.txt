@@ -21,11 +21,7 @@
 ../../data/int/fastq   ./data/int/fastq
 
 # A job-specific data folder for each substep of this workflow should exist
-../../data/job/rnaseq_workflow/prefilter   ./data/job/prefilter
-../../data/job/rnaseq_workflow/align   ./data/job/align
-../../data/job/rnaseq_workflow/qc   ./data/job/qc
-../../data/job/rnaseq_workflow/diffex   ./data/job/diffex
-../../data/job/rnaseq_workflow/systems   ./data/job/systems
+../../data/job/rnaseq_workflow   ./data/job
 
 # Configs for the rnaseq_workflow subjob should be obtained from
 #   <main_job>/conf/rnaseq_workflow
