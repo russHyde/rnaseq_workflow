@@ -7,17 +7,17 @@ min_version("5.1")
 
 # ---- configuration
 
-validate(config, "conf_schemas/snake_config.yaml")
+validate(config, "conf_schemas/snake_config.schema.yaml")
 
-rnaseq_samples = pd.read_table(
-    config["rnaseq_samples"]
+rnaseq_samples = pd.read_csv(
+    config["rnaseq_samples"], sep = "\t"
 ).set_index(
     ["study_id", "sample_id", "run_id", "lane_id"], drop=False
 )
 validate(rnaseq_samples, "conf_schemas/rnaseq_samples.schema.yaml")
 
 rnaseq_program_params = yaml.safe_load(
-    file(config["rnaseq_program_params"], "r")
+    open(config["rnaseq_program_params"], "r")
 )
 validate(rnaseq_program_params, "conf_schemas/rnaseq_program_params.schema.yaml")
 
