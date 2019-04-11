@@ -16,14 +16,13 @@
 # ~/ext_data/GEOquery ./data/ext/GEOquery
 # ../../some.target ./subdir/some.link
 
-# Raw data should be in fastq folder
-# - .../fastq/<sample_id>/<run_id><some_suffix>.fastq.gz
-../../data/int/fastq   ./data/int/fastq
-
-# A job-specific data folder for each substep of this workflow should exist
-../../data/job/rnaseq_workflow   ./data/job
-
 # Configs for the rnaseq_workflow subjob should be obtained from
 #   <main_job>/conf/rnaseq_workflow
 ../../conf/rnaseq_workflow   ./conf
 
+# Raw data should be in fastq folder
+# - .../fastq/<sample_id>/<run_id><some_suffix>.fastq.gz
+../../data/int/fastq   ./data/int/fastq
+
+# A job-specific data folder is required for the workflow
+../../data/job/rnaseq_workflow   ./data/job
