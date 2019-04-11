@@ -20,7 +20,7 @@ rnaseq_samples = pd.read_csv(
         ["study_id", "sample_id", "run_id", "lane_id"], drop=False
     )
 rnaseq_samples.index = rnaseq_samples.index.set_levels(
-        [i.astype(str) for i in seq_samples.index.levels]
+        [i.astype(str) for i in rnaseq_samples.index.levels]
     )
 validate(rnaseq_samples, "conf_schemas/rnaseq_samples.schema.yaml")
 
