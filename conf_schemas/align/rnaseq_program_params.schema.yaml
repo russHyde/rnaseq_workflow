@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: command line options for programs used in RNA-Seq alignment steps
+
+type: object
+
+properties:
+    hisat2:
+        type: string
+
+    featureCounts:
+        type: string
+
+required:
+  - hisat2
+  - featureCounts

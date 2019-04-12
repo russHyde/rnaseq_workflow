@@ -1,3 +1,5 @@
+# -- subworkflows
+
 subworkflow prefilter:
     workdir:
         "substeps/prefilter"
@@ -5,6 +7,16 @@ subworkflow prefilter:
         "substeps/prefilter/Snakefile"
     configfile:
         "substeps/prefilter/conf/snake_config.yaml"
+
+subworkflow align:
+    workdir:
+        "substeps/align"
+    snakefile:
+        "substeps/align/Snakefile"
+    configfile:
+        "substeps/align/conf/snake_config.yaml"
+
+# --
 
 rule all:
     input:

@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: genome/transcriptome reference for use in RNA-Seq (alignment)
+
+type: object
+
+properties:
+    # the HISAT2 index
+    index:
+        type: string
+
+    # the genome for the HISAT2 index
+    genome:
+        type: string
+
+    # the build-version of the genome (eg, GRCh38)
+    genome_build:
+        type: string
+
+    # the ensembl annotations for the HISAT2 index
+    annotation:
+        type: string
+
+    # the annotation-version for the transcriptome (assumed ensembl, eg 84)
+    annotation_version:
+        type: string
+
+    # the biomaRt database for the transcriptome (eg, hsapiens_gene_ensembl)
+    biomart_dataset:
+        type: string
+
+required:
+  - index
+  - annotation
