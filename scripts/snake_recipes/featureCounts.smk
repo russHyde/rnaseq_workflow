@@ -42,6 +42,7 @@ rule shorten_feature_counts:
         "{prefix}.fcount.short"
 
     shell:
+        # Note that `cut -f789-` takes all columns from 789 onwards
         """
-        cat {input} | cut -f1,6 > {output}
+        cat {input} | cut -f1,6- > {output}
         """

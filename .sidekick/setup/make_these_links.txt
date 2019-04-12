@@ -26,3 +26,6 @@
 
 # A job-specific data folder is required for the workflow
 ../../data/job/rnaseq_workflow   ./data/job
+
+# External genomic-references should be in ext/genomes
+../../data/ext/genomes   ./data/ext/genomes
