@@ -1,5 +1,6 @@
 import pandas as pd
 import yaml
+from os.path import join
 
 from snakemake.utils import min_version
 from snakemake.utils import validate
@@ -17,15 +18,16 @@ validate(config, "conf_schemas/snake_config.schema.yaml")
 # ---- definition of the samples for study here
 
 def define_rnaseq_samples(filepath):
-    rnaseq_sample_table = pd.read_csv(
-        filepath, sep = "\t"
+    rnaseq_samples = pd.read_csv(
+        filepath, sep = "\t", comment="#"
     ).set_index(
         ["study_id", "sample_id", "run_id", "lane_id"], drop = False
     )
-    rnaseq_sample_table.index = rnaseq_samples_table.index.set_levels(
-        [i.astype(str) for i in rnaseq_samples_table.index.levels]
+    rnaseq_samples.index = rnaseq_samples.index.set_levels(
+        [i.astype(str) for i in rnaseq_samples.index.levels]
     )
-    return rnaseq_samples_table
+    return rnaseq_samples
+
 
 rnaseq_samples = define_rnaseq_samples(config["rnaseq_samples"])
 validate(rnaseq_samples, "conf_schemas/rnaseq_samples.schema.yaml")
@@ -60,11 +62,14 @@ subworkflow prefilter:
 
 # -- required files
 
-# prefilter("data/job/{study_id}/{sample_id}/{run_id}_{lane_id}_1.fastq.gz"),
+# This ensures that the feature-counts for each sequencing sample on each lane
+# are obtained:
+
 required_files = expand(
-    "data/job/" + \
-        "{unit.study_id}/unit.sample_id" + \
-        "{unit.run_id}_{unit.lane_id}.fcount.short",
+    join(
+        "data", "job", "{unit.study_id}", "{unit.sample_id}",
+        "{unit.run_id}_{unit.lane_id}.fcount.short"
+    ),
     unit=rnaseq_samples.itertuples()
 )
 

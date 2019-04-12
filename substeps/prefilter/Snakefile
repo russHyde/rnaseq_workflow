@@ -1,5 +1,6 @@
 import pandas as pd
 import yaml
+from os.path import join
 
 from snakemake.utils import min_version
 from snakemake.utils import validate
@@ -14,15 +15,21 @@ validate(config, "conf_schemas/snake_config.schema.yaml")
 
 # ---- definition of samples for study here
 
-rnaseq_samples = pd.read_csv(
-        config["rnaseq_samples"], sep = "\t"
+def define_rnaseq_samples(filepath):
+    rnaseq_samples = pd.read_csv(
+        filepath, sep = "\t", comment="#"
     ).set_index(
-        ["study_id", "sample_id", "run_id", "lane_id"], drop=False
+        ["study_id", "sample_id", "run_id", "lane_id"], drop = False
     )
-rnaseq_samples.index = rnaseq_samples.index.set_levels(
+    rnaseq_samples.index = rnaseq_samples.index.set_levels(
         [i.astype(str) for i in rnaseq_samples.index.levels]
     )
+    return rnaseq_samples
+
+
+rnaseq_samples = define_rnaseq_samples(config["rnaseq_samples"])
 validate(rnaseq_samples, "conf_schemas/rnaseq_samples.schema.yaml")
+
 
 # ---- definition of command line params for the programs used here
 
@@ -33,17 +40,20 @@ validate(
     rnaseq_program_params, "conf_schemas/rnaseq_program_params.schema.yaml"
 )
 
+
 # -- targets of the current workflow-step
 
 required_files = expand(
-    "data/job/" + \
-        "{unit.study_id}/{unit.sample_id}/" + \
-        "{unit.run_id}_{unit.lane_id}_{read}.fastq.gz",
+    join(
+        "data", "job", "{unit.study_id}", "{unit.sample_id}",
+        "{unit.run_id}_{unit.lane_id}_{read}.fastq.gz"
+    ),
     unit=rnaseq_samples.itertuples(),
     read=[1, 2]
 )
 
 print(required_files)
+
 
 # -- rules
 
@@ -58,6 +68,7 @@ rule faker:
         """
         touch doc/fake_report.pdf
         """
+
 
 # -- imported rules
 
