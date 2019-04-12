@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: snakemake configuration file (alignment steps)
+
+type: object
+
+properties:
+    rnaseq_program_params:
+        type: string
+
+    rnaseq_reference_params:
+        type: string
+
+    rnaseq_samples:
+        type: string
+
+required:
+  - rnaseq_program_params
+  - rnaseq_reference_params
+  - rnaseq_samples
