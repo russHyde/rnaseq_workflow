@@ -1,0 +1,4 @@
+# -- rule-defining scripts
+
+include: "scripts/snake_recipes/hisat2.smk"
+include: "scripts/snake_recipes/featureCounts.smk"

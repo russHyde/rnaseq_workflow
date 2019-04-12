@@ -1,0 +1,1 @@
+../../../../scripts/snake_recipes/hisat2.smk
