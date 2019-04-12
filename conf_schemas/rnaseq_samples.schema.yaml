@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: sequencing sample IDs and their associated fastq files
+
+type: object
+
+properties:
+  study_id:
+    type: string
+
+  sample_id:
+    type: string
+
+  run_id:
+    type: string
+
+  lane_id:
+    type: string
+
+  fq1:
+    type: string
+
+  # fq2 is required for paired-end sequencing
+  fq2:
+    type: string
+
+required:
+  - study_id
+  - sample_id
+  - run_id
+  - lane_id
+  - fq1
