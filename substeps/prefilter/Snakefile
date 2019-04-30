@@ -48,7 +48,7 @@ trimmed_fastq_files = expand(
         "data", "job", "trimmed_fastqs", "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}_{read}.fastq.gz"
     ),
-    unit=rnaseq_sample.itertuples(),
+    unit=rnaseq_samples.itertuples(),
     read=[1, 2]
 )
 
