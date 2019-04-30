@@ -43,14 +43,16 @@ validate(
 
 # -- targets of the current workflow-step
 
-required_files = expand(
+trimmed_fastq_files = expand(
     join(
-        "data", "job", "{unit.study_id}", "{unit.sample_id}",
+        "data", "job", "trimmed_fastqs", "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}_{read}.fastq.gz"
     ),
-    unit=rnaseq_samples.itertuples(),
+    unit=rnaseq_sample.itertuples(),
     read=[1, 2]
 )
+
+required_files = trimmed_fastq_files
 
 print(required_files)
 
@@ -72,4 +74,5 @@ rule faker:
 
 # -- imported rules
 
+include: "scripts/snake_recipes/access_raw_reads.smk"
 include: "scripts/snake_recipes/trim.smk"
