@@ -2,11 +2,11 @@
 
 subworkflow filter_and_align:
     workdir:
-        "substeps/filter"
+        "substeps/filter_and_align"
     snakefile:
-        "substeps/filter/Snakefile"
+        "substeps/filter_and_align/Snakefile"
     configfile:
-        "substeps/filter/conf/snake_config.yaml"
+        "substeps/filter_and_align/conf/snake_config.yaml"
 
 # --
 
