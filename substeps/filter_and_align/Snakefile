@@ -5,7 +5,11 @@ from os.path import join
 from snakemake.utils import min_version
 from snakemake.utils import validate
 
-min_version("5.1")
+# validate requires snakemake >= 5.1
+# `conda activate` requires snakemake >= 5.4.3
+min_version("5.4.3")
+
+###############################################################################
 
 # -- configuration
 
@@ -30,7 +34,6 @@ def define_rnaseq_samples(filepath):
 rnaseq_samples = define_rnaseq_samples(config["rnaseq_samples"])
 validate(rnaseq_samples, "conf_schemas/rnaseq_samples.schema.yaml")
 
-
 # ---- definition of command line params for the programs used here
 
 rnaseq_program_params = yaml.safe_load(
@@ -40,8 +43,21 @@ validate(
     rnaseq_program_params, "conf_schemas/rnaseq_program_params.schema.yaml"
 )
 
+# ---- definition of the transcriptome / genome reference used here
 
-# -- targets of the current workflow-step
+rnaseq_reference_params = yaml.safe_load(
+    open(config["rnaseq_reference_params"], "r")
+)
+validate(
+    rnaseq_reference_params, "conf_schemas/rnaseq_reference_params.schema.yaml"
+)
+
+###############################################################################
+
+# -- required files
+
+# This ensures that the feature-counts for each sequencing sample on each lane
+# are obtained:
 
 trimmed_fastq_files = expand(
     join(
@@ -52,24 +68,33 @@ trimmed_fastq_files = expand(
     read=[1, 2]
 )
 
-required_files = []
+feature_counts_files = expand(
+    join(
+        "data", "job", "{unit.study_id}", "{unit.sample_id}",
+        "{unit.run_id}_{unit.lane_id}.fcount.short"
+    ),
+    unit=rnaseq_samples.itertuples()
+)
+
+required_files = feature_counts_files
 
 # -- rules
 
 rule all:
     input:
-        required_files + ["doc/fake_report.pdf"]
+        required_files
 
-rule faker:
+rule fake_trimming_and_alignment_report:
+    input:
+        feature_counts_files
     output:
         "doc/fake_report.pdf"
     shell:
-        """
-        touch doc/fake_report.pdf
-        """
+        "touch {output}"
 
-
-# -- imported rules
+# -- rule-defining scripts
 
 include: "scripts/snake_recipes/access_raw_reads.smk"
 include: "scripts/snake_recipes/trim.smk"
+include: "scripts/snake_recipes/hisat2.smk"
+include: "scripts/snake_recipes/featureCounts.smk"

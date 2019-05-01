@@ -2,8 +2,8 @@ rule hisat2:
     # Assumes paired-ended reads
     input:
         reads = [
-            prefilter("data/job/trimmed_fastqs/{study_id}/{sample_id}/{run_id}_{lane_id}_1.fastq.gz"),
-            prefilter("data/job/trimmed_fastqs/{study_id}/{sample_id}/{run_id}_{lane_id}_2.fastq.gz")
+            "data/job/trimmed_fastqs/{study_id}/{sample_id}/{run_id}_{lane_id}_1.fastq.gz",
+            "data/job/trimmed_fastqs/{study_id}/{sample_id}/{run_id}_{lane_id}_2.fastq.gz"
         ]
 
     output:

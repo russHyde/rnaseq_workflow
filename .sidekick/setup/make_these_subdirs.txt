@@ -41,8 +41,7 @@
 # <rnaseq_workflow>/data/job/; where the latter is a link to the main-project's
 # directory: <main_project>/data/job/rnaseq_workflow/
 
-./data/job/align
+./data/job/filter_and_align
 ./data/job/diffex
-./data/job/prefilter
 ./data/job/qc
 ./data/job/systems
