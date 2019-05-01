@@ -1,10 +1,13 @@
 $schema: "http://json-schema.org/draft-06/schema#"
 
-description: command line options for programs used in RNA-Seq alignment steps
+description: CLI options for tools used in RNA-Seq filtering / alignment steps
 
 type: object
 
 properties:
+    cutadapt-pe:
+      type: string
+
     hisat2:
         type: string
 
@@ -12,5 +15,6 @@ properties:
         type: string
 
 required:
+  - cutadapt-pe
   - hisat2
   - featureCounts
