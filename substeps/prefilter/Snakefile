@@ -52,10 +52,7 @@ trimmed_fastq_files = expand(
     read=[1, 2]
 )
 
-required_files = trimmed_fastq_files
-
-print(required_files)
-
+required_files = []
 
 # -- rules
 

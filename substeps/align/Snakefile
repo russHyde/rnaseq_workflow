@@ -73,8 +73,6 @@ required_files = expand(
     unit=rnaseq_samples.itertuples()
 )
 
-print(required_files)
-
 # -- rules
 
 rule all:
