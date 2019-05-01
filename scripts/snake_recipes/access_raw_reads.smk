@@ -36,7 +36,6 @@ def access_method_for_input_fastqs(wildcards):
 
 
 rule access_raw_reads:
-
     message:
         """
         Download (if external) or make a link to local copy of the `fastq`s for

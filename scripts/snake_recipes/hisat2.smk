@@ -1,5 +1,4 @@
 rule hisat2:
-
     # Assumes paired-ended reads
     input:
         reads = [

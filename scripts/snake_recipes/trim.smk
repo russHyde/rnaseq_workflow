@@ -2,7 +2,6 @@
 # https://github.com/snakemake-workflows/rna-seq-star-deseq2/blob/master/rules/trim.smk
 
 rule cutadapt_pe:
-
     message:
         """
         Run `cutadapt` on a pair of paired-end `fastq` files
