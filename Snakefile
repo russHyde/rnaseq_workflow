@@ -1,43 +1,24 @@
 # -- subworkflows
 
-subworkflow prefilter:
+subworkflow filter_and_align:
     workdir:
-        "substeps/prefilter"
+        "substeps/filter"
     snakefile:
-        "substeps/prefilter/Snakefile"
+        "substeps/filter/Snakefile"
     configfile:
-        "substeps/prefilter/conf/snake_config.yaml"
-
-subworkflow align:
-    workdir:
-        "substeps/align"
-    snakefile:
-        "substeps/align/Snakefile"
-    configfile:
-        "substeps/align/conf/snake_config.yaml"
+        "substeps/filter/conf/snake_config.yaml"
 
 # --
 
 rule all:
     input:
-        "doc/prefilter/fake_report.pdf",
-        "doc/align/fake_report.pdf"
+        "doc/filter_and_align/fake_report.pdf"
 
-rule prefilter_fake:
+rule filter__and_align_fake:
     input:
-        prefilter("doc/fake_report.pdf")
+        filter_and_align("doc/fake_report.pdf")
     output:
-        "doc/prefilter/fake_report.pdf"
-    shell:
-        """
-        ln -rs {input} {output}
-        """
-
-rule align_fake:
-    input:
-        align("doc/fake_report.pdf")
-    output:
-        "doc/align/fake_report.pdf"
+        "doc/filter_and_align/fake_report.pdf"
     shell:
         """
         ln -rs {input} {output}
