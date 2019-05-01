@@ -70,7 +70,7 @@ trimmed_fastq_files = expand(
 
 feature_counts_files = expand(
     join(
-        "data", "job", "{unit.study_id}", "{unit.sample_id}",
+        "data", "job", "align", "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}.fcount.short"
     ),
     unit=rnaseq_samples.itertuples()

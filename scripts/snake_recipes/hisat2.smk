@@ -7,7 +7,7 @@ rule hisat2:
         ]
 
     output:
-        temp("data/job/{study_id}/{sample_id}/{run_id}_{lane_id}.bam")
+        temp("data/job/align/{study_id}/{sample_id}/{run_id}_{lane_id}.bam")
 
     log:
         "logs/hisat2/{study_id}/{sample_id}/{run_id}_{lane_id}.bam"
