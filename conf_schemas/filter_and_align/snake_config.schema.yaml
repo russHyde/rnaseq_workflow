@@ -5,16 +5,16 @@ description: snakemake configuration file (filtering / alignment steps)
 type: object
 
 properties:
-    rnaseq_program_params:
+    program_params:
         type: string
 
-    rnaseq_reference_params:
+    reference_params:
         type: string
 
-    rnaseq_samples:
+    sequencing_samples:
         type: string
 
 required:
-  - rnaseq_program_params
-  - rnaseq_reference_params
-  - rnaseq_samples
+  - program_params
+  - reference_params
+  - sequencing_samples

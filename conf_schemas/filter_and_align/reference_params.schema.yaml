@@ -6,7 +6,7 @@ type: object
 
 properties:
     # the HISAT2 index
-    index:
+    hisat2_index:
         type: string
 
     # the genome for the HISAT2 index
@@ -30,5 +30,5 @@ properties:
         type: string
 
 required:
-  - index
+  - hisat2_index
   - annotation

@@ -19,40 +19,49 @@ validate(config, "conf_schemas/snake_config.schema.yaml")
 
 # ---- definition of samples for study here
 
-def define_rnaseq_samples(filepath):
-    rnaseq_samples = pd.read_csv(
+def define_sequencing_samples(filepath):
+    sequencing_samples = pd.read_csv(
         filepath, sep = "\t", comment="#"
     ).set_index(
         ["study_id", "sample_id", "run_id", "lane_id"], drop = False
     )
-    rnaseq_samples.index = rnaseq_samples.index.set_levels(
-        [i.astype(str) for i in rnaseq_samples.index.levels]
+    sequencing_samples.index = sequencing_samples.index.set_levels(
+        [i.astype(str) for i in sequencing_samples.index.levels]
     )
-    return rnaseq_samples
+    return sequencing_samples
 
 
-rnaseq_samples = define_rnaseq_samples(config["rnaseq_samples"])
-validate(rnaseq_samples, "conf_schemas/rnaseq_samples.schema.yaml")
+sequencing_samples = define_sequencing_samples(config["sequencing_samples"])
+validate(sequencing_samples, "conf_schemas/sequencing_samples.schema.yaml")
 
 # ---- definition of command line params for the programs used here
 
-rnaseq_program_params = yaml.safe_load(
-    open(config["rnaseq_program_params"], "r")
+program_params = yaml.safe_load(
+    open(config["program_params"], "r")
 )
 validate(
-    rnaseq_program_params, "conf_schemas/rnaseq_program_params.schema.yaml"
+    program_params, "conf_schemas/program_params.schema.yaml"
 )
 
 # ---- definition of the transcriptome / genome reference used here
 
-rnaseq_reference_params = yaml.safe_load(
-    open(config["rnaseq_reference_params"], "r")
+reference_params = yaml.safe_load(
+    open(config["reference_params"], "r")
 )
 validate(
-    rnaseq_reference_params, "conf_schemas/rnaseq_reference_params.schema.yaml"
+    reference_params, "conf_schemas/reference_params.schema.yaml"
 )
 
 ###############################################################################
+
+# -- data directories
+
+job_dir = join("data", "job")
+
+read_dirs = {
+    "raw" : join(job_dir, "reads", "raw_fastqs"),
+    "trimmed": join(job_dir, "reads", "trimmed_fastqs")
+}
 
 # -- required files
 
@@ -61,10 +70,10 @@ validate(
 
 trimmed_fastq_files = expand(
     join(
-        "data", "job", "trimmed_fastqs", "{unit.study_id}", "{unit.sample_id}",
+        read_dirs["trimmed"], "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}_{read}.fastq.gz"
     ),
-    unit=rnaseq_samples.itertuples(),
+    unit=sequencing_samples.itertuples(),
     read=[1, 2]
 )
 
@@ -73,7 +82,7 @@ feature_counts_files = expand(
         "data", "job", "align", "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}.fcount.short"
     ),
-    unit=rnaseq_samples.itertuples()
+    unit=sequencing_samples.itertuples()
 )
 
 required_files = feature_counts_files
@@ -95,6 +104,6 @@ rule fake_trimming_and_alignment_report:
 # -- rule-defining scripts
 
 include: "scripts/snake_recipes/access_raw_reads.smk"
-include: "scripts/snake_recipes/trim.smk"
-include: "scripts/snake_recipes/hisat2.smk"
-include: "scripts/snake_recipes/featureCounts.smk"
+include: "scripts/snake_recipes/trim_cutadapt.smk"
+include: "scripts/snake_recipes/align_hisat2.smk"
+include: "scripts/snake_recipes/quantify_subread.smk"
