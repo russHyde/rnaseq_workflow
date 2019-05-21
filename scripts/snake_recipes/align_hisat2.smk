@@ -3,20 +3,18 @@ rule hisat2:
     input:
         reads = [
             os.path.join(
-                read_dirs["trimmed"],
-                "{study_id}/{sample_id}/{run_id}_{lane_id}_1.fastq.gz"
+                read_dirs["trimmed"], "{sequencing_sample_id}_1.fastq.gz"
             ),
             os.path.join(
-                read_dirs["trimmed"],
-                "{study_id}/{sample_id}/{run_id}_{lane_id}_2.fastq.gz"
+                read_dirs["trimmed"], "{sequencing_sample_id}_2.fastq.gz"
             )
         ]
 
     output:
-        temp("data/job/align/{study_id}/{sample_id}/{run_id}_{lane_id}.bam")
+        temp("data/job/align/{sequencing_sample_id}.bam")
 
     log:
-        "logs/hisat2/{study_id}/{sample_id}/{run_id}_{lane_id}.bam"
+        "logs/hisat2/{sequencing_sample_id}.bam"
 
     params:
         # `idx` is required, `extra` is optional

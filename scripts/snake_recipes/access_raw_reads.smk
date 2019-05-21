@@ -53,12 +53,14 @@ rule access_raw_reads:
     output:
         fastq1 = temp(
             os.path.join(
-                read_dirs["raw"], "{study_id}/{sample_id}/{run_id}_{lane_id}_1.fastq.gz"
+                read_dirs["raw"],
+                "{study_id}/{sample_id}/{run_id}_{lane_id}_1.fastq.gz"
             )
         ),
         fastq2 = temp(
             os.path.join(
-                read_dirs["raw"], "{study_id}/{sample_id}/{run_id}_{lane_id}_2.fastq.gz"
+                read_dirs["raw"],
+                "{study_id}/{sample_id}/{run_id}_{lane_id}_2.fastq.gz"
             )
         )
 
