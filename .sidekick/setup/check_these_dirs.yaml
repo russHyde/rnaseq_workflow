@@ -1,19 +1,19 @@
 # External directories that must exist prior to running the workflow
 
-# File format:
-# - ^path/to/dir/to_be_checked$
+# File format is YAML:
+# - path/to/dir/to_be_checked$
 # - One line per directory
 # - Paths relative to working directory (ie, the dir containing conf/ doc/
 # scripts/ etc)
 
 # Example:
-# ../infx_scripts
-# ../infx_scripts/r_functions
+# - ../infx_scripts
+# - ../infx_scripts/r_functions
 
 # data directories
-../../data/int/fastq/
-../../data/job/
+- ../../data/int/fastq/
+- ../../data/job/
 
 # config directories
-../../conf/rnaseq_workflow
-../../logs/rnaseq_workflow
+- ../../conf/rnaseq_workflow
+- ../../logs/rnaseq_workflow
