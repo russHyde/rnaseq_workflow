@@ -20,7 +20,7 @@ rule hisat2:
 
     params:
         # `idx` is required, `extra` is optional
-        idx = rnaseq_reference_params["index"],
+        idx = reference_params["hisat2_index"],
         extra = rnaseq_program_params["hisat2"]
 
     threads: 4

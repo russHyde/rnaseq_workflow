@@ -8,7 +8,7 @@ properties:
     rnaseq_program_params:
         type: string
 
-    rnaseq_reference_params:
+    reference_params:
         type: string
 
     sequencing_samples:
@@ -16,5 +16,5 @@ properties:
 
 required:
   - rnaseq_program_params
-  - rnaseq_reference_params
+  - reference_params
   - sequencing_samples

@@ -6,7 +6,7 @@ rule feature_counts:
 
     input:
         bam = "{prefix}.bam",
-        gtf_gz = rnaseq_reference_params["annotation"]
+        gtf_gz = reference_params["annotation"]
 
     output:
         fcount = "{prefix}.fcount",

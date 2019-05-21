@@ -45,11 +45,11 @@ validate(
 
 # ---- definition of the transcriptome / genome reference used here
 
-rnaseq_reference_params = yaml.safe_load(
-    open(config["rnaseq_reference_params"], "r")
+reference_params = yaml.safe_load(
+    open(config["reference_params"], "r")
 )
 validate(
-    rnaseq_reference_params, "conf_schemas/rnaseq_reference_params.schema.yaml"
+    reference_params, "conf_schemas/reference_params.schema.yaml"
 )
 
 ###############################################################################
