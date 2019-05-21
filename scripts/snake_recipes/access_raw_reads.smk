@@ -9,8 +9,8 @@ def define_input_fastqs(wildcards):
 
     Assumes that
     - the raw fastqs are defined in the `fq1` and `fq2` columns of a
-    table called `rnaseq_samples`
-    - the `rnaseq_samples` table is indexed with the tuple (study_id,
+    table called `sequencing_samples`
+    - the `sequencing_samples` table is indexed with the tuple (study_id,
       sample_id, run_id, lane_id)
     - the wildcards define each of study_id, sample_id, run_id, lane_id
     """
@@ -18,7 +18,7 @@ def define_input_fastqs(wildcards):
         wildcards.study_id, wildcards.sample_id, wildcards.run_id,
         wildcards.lane_id
     )
-    raw_fastqs = rnaseq_samples.loc[index_tuple, ["fq1", "fq2"]]
+    raw_fastqs = sequencing_samples.loc[index_tuple, ["fq1", "fq2"]]
 
     # TODO: implement for FTP-downloads
     return raw_fastqs

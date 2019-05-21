@@ -11,10 +11,10 @@ properties:
     rnaseq_reference_params:
         type: string
 
-    rnaseq_samples:
+    sequencing_samples:
         type: string
 
 required:
   - rnaseq_program_params
   - rnaseq_reference_params
-  - rnaseq_samples
+  - sequencing_samples

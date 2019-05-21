@@ -19,20 +19,20 @@ validate(config, "conf_schemas/snake_config.schema.yaml")
 
 # ---- definition of samples for study here
 
-def define_rnaseq_samples(filepath):
-    rnaseq_samples = pd.read_csv(
+def define_sequencing_samples(filepath):
+    sequencing_samples = pd.read_csv(
         filepath, sep = "\t", comment="#"
     ).set_index(
         ["study_id", "sample_id", "run_id", "lane_id"], drop = False
     )
-    rnaseq_samples.index = rnaseq_samples.index.set_levels(
-        [i.astype(str) for i in rnaseq_samples.index.levels]
+    sequencing_samples.index = sequencing_samples.index.set_levels(
+        [i.astype(str) for i in sequencing_samples.index.levels]
     )
-    return rnaseq_samples
+    return sequencing_samples
 
 
-rnaseq_samples = define_rnaseq_samples(config["rnaseq_samples"])
-validate(rnaseq_samples, "conf_schemas/rnaseq_samples.schema.yaml")
+sequencing_samples = define_sequencing_samples(config["sequencing_samples"])
+validate(sequencing_samples, "conf_schemas/sequencing_samples.schema.yaml")
 
 # ---- definition of command line params for the programs used here
 
@@ -73,7 +73,7 @@ trimmed_fastq_files = expand(
         read_dirs["trimmed"], "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}_{read}.fastq.gz"
     ),
-    unit=rnaseq_samples.itertuples(),
+    unit=sequencing_samples.itertuples(),
     read=[1, 2]
 )
 
@@ -82,7 +82,7 @@ feature_counts_files = expand(
         "data", "job", "align", "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}.fcount.short"
     ),
-    unit=rnaseq_samples.itertuples()
+    unit=sequencing_samples.itertuples()
 )
 
 required_files = feature_counts_files
