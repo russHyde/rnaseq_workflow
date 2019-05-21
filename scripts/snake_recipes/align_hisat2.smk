@@ -21,7 +21,7 @@ rule hisat2:
     params:
         # `idx` is required, `extra` is optional
         idx = reference_params["hisat2_index"],
-        extra = rnaseq_program_params["hisat2"]
+        extra = program_params["hisat2"]
 
     threads: 4
 

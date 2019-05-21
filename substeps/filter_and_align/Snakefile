@@ -36,11 +36,11 @@ validate(sequencing_samples, "conf_schemas/sequencing_samples.schema.yaml")
 
 # ---- definition of command line params for the programs used here
 
-rnaseq_program_params = yaml.safe_load(
-    open(config["rnaseq_program_params"], "r")
+program_params = yaml.safe_load(
+    open(config["program_params"], "r")
 )
 validate(
-    rnaseq_program_params, "conf_schemas/rnaseq_program_params.schema.yaml"
+    program_params, "conf_schemas/program_params.schema.yaml"
 )
 
 # ---- definition of the transcriptome / genome reference used here

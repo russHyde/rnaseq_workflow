@@ -36,7 +36,7 @@ rule cutadapt_pe:
         )
 
     params:
-        rnaseq_program_params["cutadapt-pe"]
+        program_params["cutadapt-pe"]
 
     log:
         "logs/cutadapt/{study_id}/{sample_id}/{run_id}_{lane_id}.log"

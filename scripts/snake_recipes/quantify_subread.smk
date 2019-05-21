@@ -14,7 +14,7 @@ rule feature_counts:
 
     params:
         "{paired} {extra}".format(
-            paired = "-p", extra = rnaseq_program_params["featureCounts"]
+            paired = "-p", extra = program_params["featureCounts"]
         )
 
     conda:
