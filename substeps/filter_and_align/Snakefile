@@ -54,6 +54,15 @@ validate(
 
 ###############################################################################
 
+# -- data directories
+
+job_dir = join("data", "job")
+
+read_dirs = {
+    "raw" : join(job_dir, "reads", "raw_fastqs"),
+    "trimmed": join(job_dir, "reads", "trimmed_fastqs")
+}
+
 # -- required files
 
 # This ensures that the feature-counts for each sequencing sample on each lane
@@ -61,7 +70,7 @@ validate(
 
 trimmed_fastq_files = expand(
     join(
-        "data", "job", "trimmed_fastqs", "{unit.study_id}", "{unit.sample_id}",
+        read_dirs["trimmed"], "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}_{read}.fastq.gz"
     ),
     unit=rnaseq_samples.itertuples(),
@@ -95,6 +104,6 @@ rule fake_trimming_and_alignment_report:
 # -- rule-defining scripts
 
 include: "scripts/snake_recipes/access_raw_reads.smk"
-include: "scripts/snake_recipes/trim.smk"
-include: "scripts/snake_recipes/hisat2.smk"
-include: "scripts/snake_recipes/featureCounts.smk"
+include: "scripts/snake_recipes/trim_cutadapt.smk"
+include: "scripts/snake_recipes/align_hisat2.smk"
+include: "scripts/snake_recipes/quantify_subread.smk"
