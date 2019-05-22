@@ -1,0 +1,1 @@
+../../../../scripts/snake_recipes/quality_multiqc.smk
