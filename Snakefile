@@ -23,8 +23,7 @@ rule all:
 
 make_link_wrapper = \
     """
-    ln -rs {input} {output}
-    touch -h {output}
+    ln -rs {input} {output} && touch -h {output}
     """
 
 rule filter_and_align_fake:

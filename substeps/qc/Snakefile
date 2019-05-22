@@ -21,8 +21,7 @@ rule filter_and_align_report:
     output: "data/job/multiqc/filter_and_align.html"
     shell:
         """
-        ln -rs {input} {output}
-        touch -h {output}
+        ln -rs {input} {output} && touch -h {output}
         """
 
 rule fake_report:
