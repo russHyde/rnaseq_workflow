@@ -11,6 +11,21 @@ min_version("5.4.3")
 
 ###############################################################################
 
+# -- helper functions
+
+def read_table_and_set_index(filepath, index_columns):
+    table = pd.read_csv(
+        filepath, sep = "\t", comment = "#"
+    ).set_index(
+        index_columns, drop = False
+    )
+    table.index = table.index.set_levels(
+        [i.astype(str) for i in table.index.levels]
+    )
+    return table
+
+###############################################################################
+
 # -- configuration
 
 # ---- global snakemake config
@@ -19,20 +34,13 @@ validate(config, "conf_schemas/snake_config.schema.yaml")
 
 # ---- definition of samples for study here
 
-def define_sequencing_samples(filepath):
-    sequencing_samples = pd.read_csv(
-        filepath, sep = "\t", comment="#"
-    ).set_index(
-        ["study_id", "sample_id", "run_id", "lane_id"], drop = False
-    )
-    sequencing_samples.index = sequencing_samples.index.set_levels(
-        [i.astype(str) for i in sequencing_samples.index.levels]
-    )
-    return sequencing_samples
-
-
-sequencing_samples = define_sequencing_samples(config["sequencing_samples"])
-validate(sequencing_samples, "conf_schemas/sequencing_samples.schema.yaml")
+sequencing_samples = read_table_and_set_index(
+    filepath=config["sequencing_samples"],
+    index_columns=["study_id", "sample_id", "run_id", "lane_id"]
+)
+validate(
+    sequencing_samples, "conf_schemas/sequencing_samples.schema.yaml"
+)
 
 # ---- definition of command line params for the programs used here
 
@@ -70,6 +78,11 @@ fastqc_dirs = {
     "trimmed": join(job_dir, "fastqc", "trimmed_fastqs")
 }
 
+align_dirs = {
+    "prefix": join(job_dir, "align"),
+    "initial": join(job_dir, "align")
+}
+
 # -- required files
 
 # Make a separate fastqc report for both raw and trimmed fastq files from each
@@ -94,7 +107,7 @@ feature_counts_files = expand(
         "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}.fcount.short"
     ),
-    directory_prefix=[os.path.join(job_dir, "align")],
+    directory_prefix=align_dirs["initial"],
     unit=sequencing_samples.itertuples()
 )
 

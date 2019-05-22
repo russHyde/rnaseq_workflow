@@ -11,7 +11,7 @@ rule hisat2:
         ]
 
     output:
-        temp("data/job/align/{sequencing_sample_id}.bam")
+        temp(align_dirs["initial"], "{sequencing_sample_id}.bam")
 
     log:
         "logs/hisat2/{sequencing_sample_id}.bam"
