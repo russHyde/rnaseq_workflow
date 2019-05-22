@@ -1,0 +1,31 @@
+subworkflow filter_and_align:
+    workdir:
+        "../filter_and_align"
+
+    snakefile:
+        "../filter_and_align/Snakefile"
+
+    configfile:
+        "../filter_and_align/conf/snake_config.yaml"
+
+
+required_files = "data/job/multiqc/filter_and_align.html"
+
+rule all:
+    input:
+        required_files
+
+
+rule filter_and_align_report:
+    input: filter_and_align("data/job/multiqc/filter_and_align.html")
+    output: "data/job/multiqc/filter_and_align.html"
+    shell:
+        """
+        ln -rs {input} {output}
+        touch -h {output}
+        """
+
+rule fake_report:
+    input: required_files
+    output: "doc/fake_report.pdf"
+    shell: "touch {output}"
