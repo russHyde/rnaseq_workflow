@@ -94,7 +94,7 @@ feature_counts_files = expand(
         "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}.fcount.short"
     ),
-    directory_prefix=[os.path.join(job_dir, "align")]
+    directory_prefix=[os.path.join(job_dir, "align")],
     unit=sequencing_samples.itertuples()
 )
 
