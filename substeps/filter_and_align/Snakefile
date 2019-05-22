@@ -59,33 +59,48 @@ validate(
 job_dir = join("data", "job")
 
 read_dirs = {
+    "prefix": join(job_dir, "reads"),
     "raw" : join(job_dir, "reads", "raw_fastqs"),
     "trimmed": join(job_dir, "reads", "trimmed_fastqs")
 }
 
+fastqc_dirs = {
+    "prefix": join(job_dir, "fastqc"),
+    "raw": join(job_dir, "fastqc", "raw_fastqs"),
+    "trimmed": join(job_dir, "fastqc", "trimmed_fastqs")
+}
+
 # -- required files
+
+# Make a separate fastqc report for both raw and trimmed fastq files from each
+# sample, run and read direction
+
+fastqc_reports = expand(
+    join(
+        "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
+        "{unit.run_id}_{unit.lane_id}_{read}_fastqc.{ext}"
+    ),
+    directory_prefix=[fastqc_dirs["raw"], fastqc_dirs["trimmed"]],
+    unit=sequencing_samples.itertuples(),
+    read=[1, 2],
+    ext=["html", "zip"]
+)
 
 # This ensures that the feature-counts for each sequencing sample on each lane
 # are obtained:
 
-trimmed_fastq_files = expand(
-    join(
-        read_dirs["trimmed"], "{unit.study_id}", "{unit.sample_id}",
-        "{unit.run_id}_{unit.lane_id}_{read}.fastq.gz"
-    ),
-    unit=sequencing_samples.itertuples(),
-    read=[1, 2]
-)
-
 feature_counts_files = expand(
     join(
-        "data", "job", "align", "{unit.study_id}", "{unit.sample_id}",
+        "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
         "{unit.run_id}_{unit.lane_id}.fcount.short"
     ),
+    directory_prefix=[os.path.join(job_dir, "align")]
     unit=sequencing_samples.itertuples()
 )
 
-required_files = feature_counts_files
+required_files = \
+    feature_counts_files + \
+    fastqc_reports
 
 # -- rules
 
@@ -95,7 +110,7 @@ rule all:
 
 rule fake_trimming_and_alignment_report:
     input:
-        feature_counts_files
+        required_files
     output:
         "doc/fake_report.pdf"
     shell:
@@ -107,3 +122,4 @@ include: "scripts/snake_recipes/access_raw_reads.smk"
 include: "scripts/snake_recipes/trim_cutadapt.smk"
 include: "scripts/snake_recipes/align_hisat2.smk"
 include: "scripts/snake_recipes/quantify_subread.smk"
+include: "scripts/snake_recipes/quality_fastqc.smk"
