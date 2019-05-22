@@ -140,7 +140,7 @@ multiqc_report = os.path.join(
 required_files = \
     feature_counts_files + \
     qc_reports + \
-    multiqc_report
+    [multiqc_report]
 
 ###############################################################################
 
