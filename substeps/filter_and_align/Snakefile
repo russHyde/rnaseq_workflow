@@ -109,7 +109,7 @@ feature_counts_files = expand(
 
 qc_reports = get_filter_and_align_reports(
     sequencing_samples=sequencing_samples, read_dirs=read_dirs,
-    fastqc_dirs=fastqc_dirs
+    fastqc_dirs=fastqc_dirs, align_dirs=align_dirs
 )
 
 # A QC report that combines all single-sample QC reports

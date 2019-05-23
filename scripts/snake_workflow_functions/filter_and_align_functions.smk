@@ -20,6 +20,7 @@ def get_cutadapt_reports(sequencing_samples, read_dirs):
     )
     return cutadapt_reports
 
+
 def get_fastqc_reports(sequencing_samples, fastqc_dirs):
     fastqc_reports = expand(
         join(
@@ -34,13 +35,37 @@ def get_fastqc_reports(sequencing_samples, fastqc_dirs):
     return fastqc_reports
 
 
-def get_filter_and_align_reports(sequencing_samples, read_dirs, fastqc_dirs):
+def get_hisat2_reports(sequencing_samples, align_dirs):
+    """
+    The log from each hisat2 run is put into the same directory as the
+    alignment bam files (xxx.bam -> xxx.log)
+
+    This returns the file paths for all hisat2 reports generated during
+    alignment.
+    """
+    hisat2_reports = expand(
+        join(
+            "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
+            "{unit.run_id}_{unit.lane_id}.log"
+        ),
+        directory_prefix=align_dirs["initial"],
+        unit=sequencing_samples.itertuples()
+    )
+    return hisat2_reports
+
+
+def get_filter_and_align_reports(
+        sequencing_samples, read_dirs, fastqc_dirs, align_dirs
+    ):
     """
     A `fastqc` report for each fastq.gz in the current dataset is generated
     (one for each untrimmed and one for each trimmed file);
 
     A `cutadapt` report is generated for each pair of `fastq.gz` files in the
     current dataset.
+
+    A `hisat2` alignment report is generated for each pair of `fastq.gz` files
+    in the current dataset.
 
     This returns the combined set of filepaths for these reports across all
     `fastq` files in this dataset.
@@ -51,7 +76,7 @@ def get_filter_and_align_reports(sequencing_samples, read_dirs, fastqc_dirs):
     cutadapt_reports = get_cutadapt_reports(
         sequencing_samples=sequencing_samples, read_dirs=read_dirs
     )
-    return fastqc_reports + cutadapt_reports
-
-
-
+    hisat2_reports = get_hisat2_reports(
+        sequencing_samples=sequencing_samples, align_dirs=align_dirs
+    )
+    return fastqc_reports + cutadapt_reports + hisat2_reports

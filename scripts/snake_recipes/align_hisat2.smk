@@ -18,12 +18,18 @@ rule hisat2:
         )
 
     log:
-        "logs/hisat2/{sequencing_sample_id}.bam"
+        # log and qc summary are the same; therefore output to the alignment
+        # data directory rather than the log directory
+        os.path.join(
+            align_dirs["initial"], "{sequencing_sample_id}.log"
+        )
 
     params:
         # `idx` is required, `extra` is optional
         idx = reference_params["hisat2_index"],
-        extra = program_params["hisat2"]
+        extra = "--new-summary {}".format(
+            program_params["hisat2"]
+        )
 
     threads: 4
 
