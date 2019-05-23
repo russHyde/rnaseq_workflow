@@ -25,26 +25,10 @@ def read_table_and_set_index(filepath, index_columns):
     return table
 
 
-def get_fastqc_reports(sequencing_samples, fastqc_dirs):
-    fastqc_reports = expand(
-        join(
-            "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
-            "{unit.run_id}_{unit.lane_id}_{read}_fastqc.{ext}"
-        ),
-        directory_prefix=[fastqc_dirs["raw"], fastqc_dirs["trimmed"]],
-        unit=sequencing_samples.itertuples(),
-        read=[1, 2],
-        ext=["html", "zip"]
-    )
-    return fastqc_reports
-
-
-def get_filter_and_align_reports(sequencing_samples, fastqc_dirs):
-    fastqc_reports = get_fastqc_reports(
-        sequencing_samples, fastqc_dirs
-    )
-    return fastqc_reports
-
+# Functions specific to the `filter_and_align` workflow
+# - eg, `get_filter_and_align_reports` to define all qc-reports for this
+# workflow
+include: "scripts/snake_workflow_functions/filter_and_align_functions.smk"
 
 ###############################################################################
 
@@ -107,13 +91,6 @@ align_dirs = {
 
 # -- required files
 
-# Make a separate fastqc report for both raw and trimmed fastq files from each
-# sample, run and read direction
-
-qc_reports = get_filter_and_align_reports(
-    sequencing_samples, fastqc_dirs
-)
-
 # This ensures that the feature-counts for each sequencing sample on each lane
 # are obtained:
 
@@ -124,6 +101,15 @@ feature_counts_files = expand(
     ),
     directory_prefix=align_dirs["initial"],
     unit=sequencing_samples.itertuples()
+)
+
+# Make a cutadapt report for each (sample, run, lane)
+# Make a fastqc report for both raw and trimmed fastq files from each
+#   (sample, run, lane, read direction)
+
+qc_reports = get_filter_and_align_reports(
+    sequencing_samples=sequencing_samples, read_dirs=read_dirs,
+    fastqc_dirs=fastqc_dirs
 )
 
 # A QC report that combines all single-sample QC reports
