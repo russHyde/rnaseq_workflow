@@ -32,3 +32,5 @@ properties:
 required:
   - hisat2_index
   - annotation
+  - annotation_version
+  - biomart_dataset

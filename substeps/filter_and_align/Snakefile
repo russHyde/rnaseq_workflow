@@ -103,6 +103,10 @@ feature_counts_files = expand(
     unit=sequencing_samples.itertuples()
 )
 
+annotation_files = [
+    os.path.join(job_dir, "annotations", "ensembl_gene_details.tsv")
+]
+
 # Make a cutadapt report for each (sample, run, lane)
 # Make a fastqc report for both raw and trimmed fastq files from each
 #   (sample, run, lane, read direction)
@@ -125,6 +129,7 @@ multiqc_report = os.path.join(
 
 required_files = \
     feature_counts_files + \
+    annotation_files + \
     qc_reports + \
     [multiqc_report]
 
@@ -152,3 +157,27 @@ include: "scripts/snake_recipes/align_hisat2.smk"
 include: "scripts/snake_recipes/quantify_subread.smk"
 include: "scripts/snake_recipes/quality_fastqc.smk"
 include: "scripts/snake_recipes/quality_multiqc.smk"
+
+# -- local rules
+
+rule ensembl_gene_details:
+    message:
+        """
+        --- Extract gene-information from ensembl database and ensembl gtf: GC
+            content, gene-type etc
+        """
+
+    input:
+        gtf = reference_params["annotation"]
+
+    output:
+        tsv = os.path.join(
+            job_dir, "annotations", "ensembl_gene_details.tsv"
+        )
+
+    params:
+        ensembl_version = reference_params["annotation_version"],
+        ensembl_dataset = reference_params["biomart_dataset"]
+
+    script:
+        "scripts/snake_recipes/get_ensembl_gene_details.smk.R"
