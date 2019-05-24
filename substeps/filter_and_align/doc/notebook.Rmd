@@ -347,3 +347,28 @@ The `DGEList` object contains read counts for
 
 - `r ncol(dge)` samples.
 
+# QC analysis of the expression dataset
+
+### rRNA content of the expression dataset
+
+We count the number of read pairs that align to rRNA regions using the
+`gene_biotype` annotations from the Ensembl database. rRNA-alignment is
+compared against the library size (the aligned and assigned subset of the
+original RNA-Seq libraries).
+
+```{r}
+dge$samples$rrna.size <- dge[dge$genes$gene_biotype == "rRNA", ] %>%
+  getCounts() %>%
+  colSums()
+```
+
+```{r, fig.width = 6.4}
+dge$samples %>%
+  ggplot(
+    aes(x = lib.size, y = rrna.size, col = cml_sample, shape = seq_batch)
+  ) +
+  geom_point() +
+  scale_colour_manual(values = theming$patient)
+```
+
+
