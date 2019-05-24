@@ -276,7 +276,7 @@ the genomic region covered by each gene from `biomaRt`. This will be used with
 
 ```{r}
 ens_annots <- readr::read_tsv(
-  file.path(dirs$annotations, "ensembl_gene_details.tsv")
+  file.path(dirs$annotations, "ensembl_gene_details.tsv"),
   col_types = cols()
 )
 ```
