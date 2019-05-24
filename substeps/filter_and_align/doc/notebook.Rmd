@@ -163,10 +163,14 @@ dirs <- list()
 dirs <- list(
   config = here("conf"),
   data = here("data"),
+  job_data = here("data", "job"),
   results = here("results", "notebook_pdf_output")
 )
 
-dirs$counts <- file.path(dirs$data, "job", "align")
+dirs$reads <- file.path(dirs$job_data, "reads")
+dirs$align <- file.path(dirs$job_data, "align")
+dirs$counts <- file.path(dirs$job_data, "align")
+dirs$annotations <- file.path(dirs$job_data, "annotations")
 ```
 
 ```{r}
@@ -260,3 +264,31 @@ ggplotly(p)
 ```{r}
 head(feature_counts)
 ```
+
+## Construct the expression dataset
+
+Gene features were extracted from the `.gtf` file used while running
+featureCounts (the Ensembl v84 / GRCh38 transcriptome). This contains details
+for any entry of the .gtf that has "gene" in the feature type (3rd column).  In
+addition to the gene-details provided by Ensembl, we obtained the GC percent in
+the genomic region covered by each gene from `biomaRt`. This will be used with
+`cqn` to reduce GC-associated bias across the sequencing samples.
+
+```{r}
+ens_annots <- readr::read_tsv(
+  file.path(dirs$annotations, "ensembl_gene_details.tsv")
+)
+```
+
+Note that, pseudogenes and various other non-translated genetypes are present
+in the set of features used here.
+
+```{r}
+head(ens_annots)
+
+summary(as.factor(ens_annots$gene_biotype)) %>%
+  sort(decreasing = TRUE) %>%
+  head()
+```
+
+
