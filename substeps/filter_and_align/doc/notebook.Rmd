@@ -193,5 +193,5 @@ feature_counts <- reeq::read_feature_counts(
 ```
 
 ```{r}
-head(feature_counts[, 1:6])
+head(feature_counts)
 ```
