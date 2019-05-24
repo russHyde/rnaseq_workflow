@@ -106,6 +106,22 @@ define_file_map <- function(dirs, seq_files) {
 
 ## Data manipulation
 
+### Sample Identifiers
+
+In the workflow code, a biological sample is identified by `study_id`,
+`sample_id` and `run_id`; and a sequencing sample is identified by the same 
+identifiers, plus a `lane_id`.
+
+In this script we use a single identifier to define a biological sample:
+
+```{r}
+make_sample_id <- function(sample_id, run_id) {
+  make.names(
+    paste(sample_id, run_id, sep = "__")
+  )
+}
+```
+
 ### Feature Counts
 
 ```{r, echo = show_functions}
@@ -143,7 +159,7 @@ merge_feature_counts_over_lanes <- function(feature_counts_by_lane) {
     dplyr::ungroup() %>%
     dplyr::transmute(
       feature_id, length,
-      sample_id = make.names(paste(sample_id, run_id, sep = "__")),
+      sample_id = make_sample_id(sample_id, run_id),
       count
     ) %>%
     tidyr::spread(sample_id, count)
@@ -231,6 +247,18 @@ head(file_map)
 
 # Import sample-specific information
 
+TODO: fix this empty definition; read in the biological treatments for each
+sample etc.
+
+```{r}
+sample_df <- with(
+  unique(seq_files[c("sample_id", "run_id")]),
+  tibble::tibble(
+    sample_id = make_sample_id(sample_id, run_id)
+  )
+)
+```
+
 <!-- ====================================================================== -->
 
 ## Feature-Counts
@@ -265,7 +293,7 @@ ggplotly(p)
 head(feature_counts)
 ```
 
-## Construct the expression dataset
+## Gene annotations
 
 Gene features were extracted from the `.gtf` file used while running
 featureCounts (the Ensembl v84 / GRCh38 transcriptome). This contains details
@@ -291,6 +319,7 @@ summary(as.factor(ens_annots$gene_biotype)) %>%
   sort(decreasing = TRUE) %>%
   head()
 ```
+## Construct the expression dataset
 
 The read counts were converted into a DGEList, so that they can be used in
 edgeR and limma. Gene-annotations for the features were added from
@@ -300,7 +329,7 @@ edgeR and limma. Gene-annotations for the features were added from
 dge <- reeq::feature_counts_to_dgelist(
   fcounts_df = feature_counts,
   # TODO: include the sample/treatment information:
-  # sample_df = sample_df,
+  sample_df = sample_df,
   id_column = "sample_id"
 ) %>%
   reeq::append_feature_annotations(
