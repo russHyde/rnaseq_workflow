@@ -277,6 +277,7 @@ the genomic region covered by each gene from `biomaRt`. This will be used with
 ```{r}
 ens_annots <- readr::read_tsv(
   file.path(dirs$annotations, "ensembl_gene_details.tsv")
+  col_types = cols()
 )
 ```
 
@@ -291,4 +292,29 @@ summary(as.factor(ens_annots$gene_biotype)) %>%
   head()
 ```
 
+The read counts were converted into a DGEList, so that they can be used in
+edgeR and limma. Gene-annotations for the features were added from
+`ens_annots`.
+
+```{r}
+dge <- reeq::feature_counts_to_dgelist(
+  fcounts_df = fcounts,
+  # TODO: include the sample/treatment information:
+  # sample_df = sample_df,
+  id_column = "sample_id"
+) %>%
+  reeq::append_feature_annotations(
+    ens_annots, "feature_id"
+  )
+```
+
+```{r}
+colnames(dge$genes)
+```
+
+The `DGEList` object contains read counts for
+
+- `r nrow(dge)` features; and
+
+- `r ncol(dge)` samples.
 
