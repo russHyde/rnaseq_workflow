@@ -298,7 +298,7 @@ edgeR and limma. Gene-annotations for the features were added from
 
 ```{r}
 dge <- reeq::feature_counts_to_dgelist(
-  fcounts_df = fcounts,
+  fcounts_df = feature_counts,
   # TODO: include the sample/treatment information:
   # sample_df = sample_df,
   id_column = "sample_id"
