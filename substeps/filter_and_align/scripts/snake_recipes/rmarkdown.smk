@@ -1,0 +1,1 @@
+../../../../scripts/snake_recipes/rmarkdown.smk

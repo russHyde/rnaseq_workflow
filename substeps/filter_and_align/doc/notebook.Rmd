@@ -1,0 +1,374 @@
+---
+title: "Notebook for the `filter_and_align` substep"
+output:
+  html_document: default
+  pdf_document:
+    df_print: kable
+    fig_caption: yes
+    fig_height: 7
+    fig_width: 7
+    includes:
+      in_header: header.tex
+    latex_engine: xelatex
+    number_sections: yes
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
+urlcolor: blue
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+show_setup <- FALSE
+show_functions <- FALSE
+show_figure_code <- FALSE
+show_file_writes <- FALSE
+show_code <- TRUE
+```
+
+# Environment
+
+```{r, echo = !show_setup}
+# To see the environment-setup code, recompile with `show_setup = TRUE`
+```
+
+```{r, echo = show_setup}
+library(here)
+```
+
+```{r, echo = show_setup}
+pkgs <- c(
+  # CRAN
+  "dplyr",
+  #  "forcats",
+  "ggplot2",
+  "magrittr",
+  "plotly",
+  #  "purrr",
+  "readr",
+  #  "stringr",
+  "tibble",
+  #  "tidyr",
+
+  # Bioconductor
+  #  "biomaRt",
+  #  "cqn",
+  #  "edgeR",
+
+  # My packages
+  "reeq"
+  #  "s3tree"
+)
+
+for (pkg in pkgs) {
+  suppressPackageStartupMessages(
+    library(pkg, character.only = TRUE)
+  )
+}
+```
+
+```{r, echo = show_setup}
+# For storing intermediate results that will be used in the text
+sketches <- list()
+
+# For storing results that will be presented in the Executive Summary
+gallery <- list()
+```
+
+# Functions
+
+```{r, echo = !show_functions}
+# To see the function definitions, recompile with `show_functions = TRUE`
+```
+
+## Data Import
+
+```{r, echo = show_functions}
+define_file_map <- function(dirs, seq_files) {
+  stopifnot("counts" %in% names(dirs))
+  stopifnot(
+    all(c("study_id", "sample_id", "run_id", "lane_id") %in% names(seq_files))
+  )
+  tibble::tibble(
+    study_id = seq_files$study_id,
+    sample_id = seq_files$sample_id,
+    run_id = seq_files$run_id,
+    lane_id = seq_files$lane_id
+  ) %>%
+    dplyr::mutate(
+      counts = file.path(
+        dirs$counts, study_id, sample_id,
+        paste0(run_id, "_", lane_id, ".fcount.short")
+      )
+    )
+}
+```
+
+
+## Data manipulation
+
+### Sample Identifiers
+
+In the workflow code, a biological sample is identified by `study_id`,
+`sample_id` and `run_id`; and a sequencing sample is identified by the same
+identifiers, plus a `lane_id`.
+
+In this script we use a single identifier to define a biological sample:
+
+```{r}
+make_sample_id <- function(sample_id, run_id) {
+  make.names(
+    paste(sample_id, run_id, sep = "__")
+  )
+}
+```
+
+### Feature Counts
+
+```{r, echo = show_functions}
+get_feature_counts_by_lane <- function(file_map) {
+  # TODO: fix the workflow so that lanes are merged prior to featureCounts call
+  # Then replace any call to get_feature_counts_by_lane with
+  # `reeq::read_feature_counts`
+
+  stopifnot(
+    all(c("counts", "sample_id", "run_id", "lane_id") %in% colnames(file_map))
+  )
+
+  purrr::pmap_dfr(
+    file_map[c("counts", "sample_id", "run_id", "lane_id")],
+    function(
+                 counts, sample_id, run_id, lane_id) {
+      fcounts <- reeq:::read_single_feature_counts_file(counts)
+      names(fcounts)[3] <- "count"
+      sample_details <- tibble::tibble(
+        sample_id = sample_id, run_id = run_id, lane_id = lane_id
+      )
+      cbind(sample_details, fcounts)
+    }
+  )
+}
+```
+
+```{r}
+merge_feature_counts_over_lanes <- function(feature_counts_by_lane) {
+  feature_counts_by_lane %>%
+    dplyr::group_by(sample_id, run_id, feature_id, length) %>%
+    dplyr::summarise(count = sum(count)) %>%
+    # (sample_id, run_id, feature_id, length, count)
+    # want: (feature_id, length, sample_1, sample_2, ...)
+    dplyr::ungroup() %>%
+    dplyr::transmute(
+      feature_id, length,
+      sample_id = make_sample_id(sample_id, run_id),
+      count
+    ) %>%
+    tidyr::spread(sample_id, count)
+}
+```
+
+# Directories
+
+All results constructed by this notebook are stored in
+`<this_substep>/results/notebook_pdf_output/`
+
+```{r}
+dirs <- list()
+```
+
+```{r}
+dirs <- list(
+  config = here("conf"),
+  data = here("data"),
+  job_data = here("data", "job"),
+  results = here("results", "notebook_pdf_output")
+)
+
+dirs$reads <- file.path(dirs$job_data, "reads")
+dirs$align <- file.path(dirs$job_data, "align")
+dirs$counts <- file.path(dirs$job_data, "align")
+dirs$annotations <- file.path(dirs$job_data, "annotations")
+```
+
+```{r}
+for (d in dirs) {
+  if (!dir.exists(d)) {
+    dir.create(d, recursive = TRUE)
+  }
+}
+```
+
+# Data
+
+## Project-specific data
+
+External files and study information were imported.
+
+The sequencing files are referred to by several IDs.
+
+- `study_id` - the EBI ID for the whole dataset
+
+- `sample_id` - the ID for an experimental sample (a specific treatment in a
+specific patient)
+
+- `run_id` - the ID for a sequencing sample (in this specific experiment there
+is a one-one relationship between `run_id` and `sample_id`)
+
+- `lane_id` - which lane was a given sequencing sample ran on
+
+```{r}
+seq_files <- readr::read_tsv(
+  file.path(dirs$config, "sequencing_samples.tsv"),
+  col_types = cols()
+)
+```
+
+The sequencing data was aligned and the transcriptome assignments were
+summarised with `featureCounts`. The filepaths for the counted data were
+constructed:
+
+```{r}
+file_map <- define_file_map(dirs, seq_files)
+```
+
+\blandscape
+```{r}
+# Example of the sequencing files and their source locations.
+head(seq_files)
+```
+
+```{r}
+# Position of the featureCount-summarised data for (a subset of) the
+# samples
+head(file_map)
+```
+\elandscape
+
+<!-- ====================================================================== -->
+
+# Import sample-specific information
+
+TODO: fix this empty definition; read in the biological treatments for each
+sample etc.
+
+```{r}
+sample_df <- with(
+  unique(seq_files[c("sample_id", "run_id")]),
+  tibble::tibble(
+    sample_id = make_sample_id(sample_id, run_id)
+  )
+)
+```
+
+<!-- ====================================================================== -->
+
+## Feature-Counts
+
+The count data for each lane was read in and summed together to generate the
+count data for each sequencing sample.
+
+
+```{r}
+feature_counts_by_lane <- get_feature_counts_by_lane(file_map)
+```
+
+```{r}
+feature_counts <- merge_feature_counts_over_lanes(feature_counts_by_lane)
+```
+
+```{r}
+p <- feature_counts_by_lane %>%
+  group_by(feature_id) %>%
+  summarise(
+    mu = mean(log2(16 + count)), sd = sd(log2(16 + count))
+  ) %>%
+  ggplot(aes(x = mu, y = sd)) +
+  geom_point(aes(text = feature_id))
+```
+
+```{r}
+ggplotly(p)
+```
+
+```{r}
+head(feature_counts)
+```
+
+## Gene annotations
+
+Gene features were extracted from the `.gtf` file used while running
+featureCounts (the Ensembl v84 / GRCh38 transcriptome). This contains details
+for any entry of the .gtf that has "gene" in the feature type (3rd column).  In
+addition to the gene-details provided by Ensembl, we obtained the GC percent in
+the genomic region covered by each gene from `biomaRt`. This will be used with
+`cqn` to reduce GC-associated bias across the sequencing samples.
+
+```{r}
+ens_annots <- readr::read_tsv(
+  file.path(dirs$annotations, "ensembl_gene_details.tsv"),
+  col_types = cols()
+)
+```
+
+Note that, pseudogenes and various other non-translated genetypes are present
+in the set of features used here.
+
+```{r}
+head(ens_annots)
+
+summary(as.factor(ens_annots$gene_biotype)) %>%
+  sort(decreasing = TRUE) %>%
+  head()
+```
+## Construct the expression dataset
+
+The read counts were converted into a DGEList, so that they can be used in
+edgeR and limma. Gene-annotations for the features were added from
+`ens_annots`.
+
+```{r}
+dge <- reeq::feature_counts_to_dgelist(
+  fcounts_df = feature_counts,
+  # TODO: include the sample/treatment information:
+  sample_df = sample_df,
+  id_column = "sample_id"
+) %>%
+  reeq::append_feature_annotations(
+    ens_annots, "feature_id"
+  )
+```
+
+```{r}
+colnames(dge$genes)
+```
+
+The `DGEList` object contains read counts for
+
+- `r nrow(dge)` features; and
+
+- `r ncol(dge)` samples.
+
+# QC analysis of the expression dataset
+
+### rRNA content of the expression dataset
+
+We count the number of read pairs that align to rRNA regions using the
+`gene_biotype` annotations from the Ensembl database. rRNA-alignment is
+compared against the library size (the aligned and assigned subset of the
+original RNA-Seq libraries).
+
+```{r}
+dge$samples$rrna.size <- dge[dge$genes$gene_biotype == "rRNA", ] %>%
+  getCounts() %>%
+  colSums()
+```
+
+```{r, fig.width = 6.4}
+dge$samples %>%
+  ggplot(
+    aes(x = lib.size, y = rrna.size, col = cml_sample, shape = seq_batch)
+  ) +
+  geom_point() +
+  scale_colour_manual(values = theming$patient)
+```
+
+
