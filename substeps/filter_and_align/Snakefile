@@ -129,7 +129,7 @@ multiqc_report = os.path.join(
 # datasets for use in subsequent substeps: the raw DGEList of counts for
 # example
 
-rmarkdown_report = os.path.join("doc", "notebook.pdf")
+rmarkdown_report = os.path.join("doc", "notebook.html")
 rmarkdown_prereqs = [
     # TODO: ensembl_gene_details.tsv, all fcount.short files
 ]

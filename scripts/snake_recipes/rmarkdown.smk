@@ -28,7 +28,10 @@ rule compile_markdown:
         ["doc/{doc_name}.Rmd"] + rmarkdown_prereqs
 
     output:
-        ["doc/{doc_name}.{ext,pdf|docx}"] + rmarkdown_result_regexes
+        ["doc/{doc_name}.{ext}"] + rmarkdown_result_regexes
+
+    wildcard_constraints:
+        ext = "pdf|docx|html"
 
     params:
         job = os.path.basename(os.getcwd())
@@ -38,7 +41,8 @@ rule compile_markdown:
             library(rmarkdown)
             library(tools)
             doctype <- list(pdf  = "pdf_document",
-                            docx = "word_document"
+                            docx = "word_document",
+                            html = "html_document"
                             )[["{wildcards.ext}"]]
             rmd.script <- "{input[0]}"
             render(rmd.script,
