@@ -9,6 +9,8 @@ Add requirements to cover:
 
 - requirements for `rmarkdown.smk`
     - rpy2
+    - r-here
+    - r-readr
     - knitr etc
 
 - requirements for running the workflow

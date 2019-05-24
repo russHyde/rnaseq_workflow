@@ -42,7 +42,7 @@ pkgs <- c(
 #  "ggplot2",
 #  "magrittr",
 #  "purrr",
-#  "readr",
+  "readr",
 #  "stringr",
 #  "tibble",
 #  "tidyr",
@@ -147,7 +147,7 @@ is a one-one relationship between `run_id` and `sample_id`)
 - `lane_id` - which lane was a given sequencing sample ran on
 
 ```{r}
-seq_files <- read_tsv(
+seq_files <- readr::read_tsv(
   file.path(dirs$config, "sequencing_samples.tsv"),
   col_types = cols()
 )
