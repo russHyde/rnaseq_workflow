@@ -1,16 +1,17 @@
 ---
 title: "Notebook for the `filter_and_align` substep"
-date: "`r format(Sys.time(), '%Y-%m-%d')`"
 output:
-    pdf_document:
-        latex_engine: xelatex
-        number_sections: yes
-        df_print: kable
-        fig_caption: yes
-        fig_width: 7
-        fig_height: 7
-        includes:
-            in_header: "header.tex"
+  html_document: default
+  pdf_document:
+    df_print: kable
+    fig_caption: yes
+    fig_height: 7
+    fig_width: 7
+    includes:
+      in_header: header.tex
+    latex_engine: xelatex
+    number_sections: yes
+date: '`r format(Sys.time(), "%Y-%m-%d")`'
 urlcolor: blue
 ---
 
@@ -38,23 +39,24 @@ library(here)
 pkgs <- c(
   # CRAN
   "dplyr",
-#  "forcats",
-#  "ggplot2",
+  #  "forcats",
+  "ggplot2",
   "magrittr",
-#  "purrr",
+  "plotly",
+  #  "purrr",
   "readr",
-#  "stringr",
+  #  "stringr",
   "tibble",
-#  "tidyr",
+  #  "tidyr",
 
   # Bioconductor
-#  "biomaRt",
-#  "cqn",
-#  "edgeR",
+  #  "biomaRt",
+  #  "cqn",
+  #  "edgeR",
 
   # My packages
   "reeq"
-#  "s3tree"
+  #  "s3tree"
 )
 
 for (pkg in pkgs) {
@@ -95,9 +97,56 @@ define_file_map <- function(dirs, seq_files) {
     dplyr::mutate(
       counts = file.path(
         dirs$counts, study_id, sample_id,
-       paste0(run_id, "_", lane_id, ".fcount.short")
+        paste0(run_id, "_", lane_id, ".fcount.short")
       )
     )
+}
+```
+
+
+## Data manipulation
+
+### Feature Counts
+
+```{r, echo = show_functions}
+get_feature_counts_by_lane <- function(file_map) {
+  # TODO: fix the workflow so that lanes are merged prior to featureCounts call
+  # Then replace any call to get_feature_counts_by_lane with
+  # `reeq::read_feature_counts`
+
+  stopifnot(
+    all(c("counts", "sample_id", "run_id", "lane_id") %in% colnames(file_map))
+  )
+
+  purrr::pmap_dfr(
+    file_map[c("counts", "sample_id", "run_id", "lane_id")],
+    function(
+                 counts, sample_id, run_id, lane_id) {
+      fcounts <- reeq:::read_single_feature_counts_file(counts)
+      names(fcounts)[3] <- "count"
+      sample_details <- tibble::tibble(
+        sample_id = sample_id, run_id = run_id, lane_id = lane_id
+      )
+      cbind(sample_details, fcounts)
+    }
+  )
+}
+```
+
+```{r}
+merge_feature_counts_over_lanes <- function(feature_counts_by_lane) {
+  feature_counts_by_lane %>%
+    dplyr::group_by(sample_id, run_id, feature_id, length) %>%
+    dplyr::summarise(count = sum(count)) %>%
+    # (sample_id, run_id, feature_id, length, count)
+    # want: (feature_id, length, sample_1, sample_2, ...)
+    dplyr::ungroup() %>%
+    dplyr::transmute(
+      feature_id, length,
+      sample_id = make.names(paste(sample_id, run_id, sep = "__")),
+      count
+    ) %>%
+    tidyr::spread(sample_id, count)
 }
 ```
 
@@ -123,7 +172,7 @@ dirs$counts <- file.path(dirs$data, "job", "align")
 ```{r}
 for (d in dirs) {
   if (!dir.exists(d)) {
-    dir.create(d)
+    dir.create(d, recursive = TRUE)
   }
 }
 ```
@@ -185,11 +234,27 @@ head(file_map)
 The count data for each lane was read in and summed together to generate the
 count data for each sequencing sample.
 
+
 ```{r}
-feature_counts <- reeq::read_feature_counts(
-  files = file_map$counts,
-  sample_ids = file_map$sample_id
-)
+feature_counts_by_lane <- get_feature_counts_by_lane(file_map)
+```
+
+```{r}
+feature_counts <- merge_feature_counts_over_lanes(feature_counts_by_lane)
+```
+
+```{r}
+p <- feature_counts_by_lane %>%
+  group_by(feature_id) %>%
+  summarise(
+    mu = mean(log2(16 + count)), sd = sd(log2(16 + count))
+  ) %>%
+  ggplot(aes(x = mu, y = sd)) +
+  geom_point(aes(text = feature_id))
+```
+
+```{r}
+ggplotly(p)
 ```
 
 ```{r}
