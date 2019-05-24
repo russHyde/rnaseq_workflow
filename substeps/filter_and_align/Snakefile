@@ -125,13 +125,26 @@ multiqc_report = os.path.join(
     job_dir, "multiqc", "filter_and_align.html"
 )
 
+# A report on the filter/align substep in Rmarkdown; this constructs some
+# datasets for use in subsequent substeps: the raw DGEList of counts for
+# example
+
+rmarkdown_report = os.path.join("doc", "notebook.pdf")
+rmarkdown_prereqs = [
+    # TODO: ensembl_gene_details.tsv, all fcount.short files
+]
+rmarkdown_result_regexes = []
+rmarkdown_results = []
+
+docs = [multiqc_report, rmarkdown_report]
+
 # ---- final list of required files
 
 required_files = \
     feature_counts_files + \
     annotation_files + \
     qc_reports + \
-    [multiqc_report]
+    docs
 
 ###############################################################################
 
@@ -157,6 +170,7 @@ include: "scripts/snake_recipes/align_hisat2.smk"
 include: "scripts/snake_recipes/quantify_subread.smk"
 include: "scripts/snake_recipes/quality_fastqc.smk"
 include: "scripts/snake_recipes/quality_multiqc.smk"
+include: "scripts/snake_recipes/rmarkdown.smk"
 
 # -- local rules
 

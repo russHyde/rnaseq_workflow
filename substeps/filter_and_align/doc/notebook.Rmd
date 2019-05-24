@@ -1,0 +1,197 @@
+---
+title: "Notebook for the `filter_and_align` substep"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output:
+    pdf_document:
+        latex_engine: xelatex
+        number_sections: yes
+        df_print: kable
+        fig_caption: yes
+        fig_width: 7
+        fig_height: 7
+        includes:
+            in_header: "header.tex"
+urlcolor: blue
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+show_setup <- FALSE
+show_functions <- FALSE
+show_figure_code <- FALSE
+show_file_writes <- FALSE
+show_code <- TRUE
+```
+
+# Environment
+
+```{r, echo = !show_setup}
+# To see the environment-setup code, recompile with `show_setup = TRUE`
+```
+
+```{r, echo = show_setup}
+library(here)
+```
+
+```{r, echo = show_setup}
+pkgs <- c(
+  # CRAN
+#  "dplyr",
+#  "forcats",
+#  "ggplot2",
+#  "magrittr",
+#  "purrr",
+#  "readr",
+#  "stringr",
+#  "tibble",
+#  "tidyr",
+
+  # Bioconductor
+#  "biomaRt",
+#  "cqn",
+#  "edgeR",
+
+  # My packages
+#  "reeq",
+#  "s3tree"
+)
+
+for (pkg in pkgs) {
+  suppressPackageStartupMessages(
+    library(pkg, character.only = TRUE)
+  )
+}
+```
+
+```{r, echo = show_setup}
+# For storing intermediate results that will be used in the text
+sketches <- list()
+
+# For storing results that will be presented in the Executive Summary
+gallery <- list()
+```
+
+# Functions
+
+```{r, echo = !show_functions}
+# To see the function definitions, recompile with `show_functions = TRUE`
+```
+
+## Data Import
+
+```{r, echo = show_functions}
+define_file_map <- function(dirs, seq_files) {
+  stopifnot("counts" %in% names(dirs))
+  stopifnot(
+    all(c("study_id", "sample_id", "run_id", "lane_id") %in% names(seq_files))
+  )
+  tibble::tibble(
+    study_id = seq_files$study_id,
+    sample_id = seq_files$sample_id,
+    run_id = seq_files$run_id,
+    lane_id = seq_files$lane_id
+  ) %>%
+    dplyr::mutate(
+      counts = file.path(
+        dirs$counts, study_id, sample_id,
+       paste0(run_id, "_", lane_id, ".fcount.short")
+      )
+    )
+}
+```
+
+# Directories
+
+All results constructed by this notebook are stored in
+`<this_substep>/results/notebook_pdf_output/`
+
+```{r}
+dirs <- list()
+```
+
+```{r}
+dirs <- list(
+  config = here("conf"),
+  data = here("data"),
+  results = here("results", "notebook_pdf_output")
+)
+
+dirs$counts <- file.path(dirs$data, "job", "align")
+```
+
+```{r}
+for (d in dirs) {
+  if (!dir.exists(d)) {
+    dir.create(d)
+  }
+}
+```
+
+# Data
+
+## Project-specific data
+
+External files and study information were imported.
+
+The sequencing files are referred to by several IDs.
+
+- `study_id` - the EBI ID for the whole dataset
+
+- `sample_id` - the ID for an experimental sample (a specific treatment in a
+specific patient)
+
+- `run_id` - the ID for a sequencing sample (in this specific experiment there
+is a one-one relationship between `run_id` and `sample_id`)
+
+- `lane_id` - which lane was a given sequencing sample ran on
+
+```{r}
+seq_files <- read_tsv(
+  file.path(dirs$config, "sequencing_samples.tsv"),
+  col_types = cols()
+)
+```
+
+The sequencing data was aligned and the transcriptome assignments were
+summarised with `featureCounts`. The filepaths for the counted data were
+constructed:
+
+```{r}
+file_map <- define_file_map(dirs, seq_files)
+```
+
+\blandscape
+```{r}
+# Example of the sequencing files and their source locations.
+head(seq_files)
+```
+
+```{r}
+# Position of the featureCount-summarised data for (a subset of) the
+# samples
+head(file_map)
+```
+\elandscape
+
+<!-- ====================================================================== -->
+
+# Import sample-specific information
+
+<!-- ====================================================================== -->
+
+## Feature-Counts
+
+The count data for each lane was read in and summed together to generate the
+count data for each sequencing sample.
+
+```{r}
+feature_counts <- reeq::read_feature_counts(
+  files = file_map$counts,
+  sample_ids = file_map$sample_id
+)
+```
+
+```{r}
+head(feature_counts[, 1:6])
+```
