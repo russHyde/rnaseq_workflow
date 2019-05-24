@@ -37,14 +37,14 @@ library(here)
 ```{r, echo = show_setup}
 pkgs <- c(
   # CRAN
-#  "dplyr",
+  "dplyr",
 #  "forcats",
 #  "ggplot2",
-#  "magrittr",
+  "magrittr",
 #  "purrr",
   "readr",
 #  "stringr",
-#  "tibble",
+  "tibble",
 #  "tidyr",
 
   # Bioconductor
@@ -53,7 +53,7 @@ pkgs <- c(
 #  "edgeR",
 
   # My packages
-#  "reeq",
+  "reeq"
 #  "s3tree"
 )
 
