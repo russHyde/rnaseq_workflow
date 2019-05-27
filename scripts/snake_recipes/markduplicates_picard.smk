@@ -20,7 +20,7 @@ rule mark_duplicates_picard:
             align_dirs["markdup"], "{sequencing_sample_id}.bam"
         ),
         metrics = join(
-            align_dirs["markdup"], "{sequencing_sample_id}.metrics.txt"
+            align_dirs["markdup"], "{sequencing_sample_id}.metrics"
         ),
         bai = join(
             align_dirs["markdup"], "{sequencing_sample_id}.bai"
