@@ -54,6 +54,39 @@ def get_hisat2_reports(sequencing_samples, align_dirs):
     return hisat2_reports
 
 
+def get_markdups_reports(sequencing_samples, align_dirs):
+    """
+    The metrics file from picard MarkDuplicates is put into the same directory
+    as the duplicate-marked bam file
+
+    This returns the file paths for all metrics files generated during
+    duplicate-marking.
+    """
+    mark_duplicates_reports = expand(
+        join(
+            "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
+            "{unit.run_id}.metrics"
+        ),
+        directory_prefix=align_dirs["markdup"],
+        unit=sequencing_samples.itertuples()
+    )
+    return list(set(mark_duplicates_reports))
+
+
+def get_feature_counts_reports(sequencing_samples, quantify_dirs):
+    """
+    """
+    fcounts_reports = expand(
+        join(
+            "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
+            "{unit.run_id}.fcount.summary"
+        ),
+        directory_prefix=quantify_dirs["with_dups"],
+        unit=sequencing_samples.itertuples()
+    )
+    return list(set(fcounts_reports))
+
+
 def get_filter_and_align_reports(
         sequencing_samples, read_dirs, fastqc_dirs, align_dirs
     ):
@@ -67,6 +100,10 @@ def get_filter_and_align_reports(
     A `hisat2` alignment report is generated for each pair of `fastq.gz` files
     in the current dataset.
 
+    A `picard MarkDuplicates` report for each merged bam.
+
+    A `featureCounts` report for each quantified, merged, bam
+
     This returns the combined set of filepaths for these reports across all
     `fastq` files in this dataset.
     """
@@ -79,4 +116,11 @@ def get_filter_and_align_reports(
     hisat2_reports = get_hisat2_reports(
         sequencing_samples=sequencing_samples, align_dirs=align_dirs
     )
-    return fastqc_reports + cutadapt_reports + hisat2_reports
+    markdups_reports = get_mark_duplicates_reports(
+        sequencing_samples=sequencing_samples, align_dirs=align_dirs
+    )
+    fcounts_reports = get_feature_counts_reports(
+        sequencing_samples=sequencing_samples, quantify_dirs=quantify_dirs
+    )
+    return fastqc_reports + cutadapt_reports + hisat2_reports + \
+        markdup_reports + fcounts_reports
