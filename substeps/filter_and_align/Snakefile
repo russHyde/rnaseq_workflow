@@ -180,6 +180,7 @@ include: "scripts/snake_recipes/quality_multiqc.smk"
 
 include: "scripts/snake_recipes/coordsort_picard.smk"
 include: "scripts/snake_recipes/mergesam_picard.smk"
+include: "scripts/snake_recipes/markduplicates_picard.smk"
 
 # -- local rules
 
