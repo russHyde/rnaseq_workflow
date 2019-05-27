@@ -116,7 +116,7 @@ def get_filter_and_align_reports(
     hisat2_reports = get_hisat2_reports(
         sequencing_samples=sequencing_samples, align_dirs=align_dirs
     )
-    markdups_reports = get_mark_duplicates_reports(
+    markdup_reports = get_mark_duplicates_reports(
         sequencing_samples=sequencing_samples, align_dirs=align_dirs
     )
     fcounts_reports = get_feature_counts_reports(
