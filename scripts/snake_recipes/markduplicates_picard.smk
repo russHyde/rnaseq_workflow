@@ -17,13 +17,13 @@ rule mark_duplicates_picard:
 
     output:
         bam = join(
-            align_dirs["dedup"], "{sequencing_sample_id}.bam"
+            align_dirs["markdup"], "{sequencing_sample_id}.bam"
         ),
         metrics = join(
-            align_dirs["dedup"], "{sequencing_sample_id}.metrics.txt"
+            align_dirs["markdup"], "{sequencing_sample_id}.metrics.txt"
         ),
         bai = join(
-            align_dirs["dedup"], "{sequencing_sample_id}.bai"
+            align_dirs["markdup"], "{sequencing_sample_id}.bai"
         )
 
     params:
@@ -33,7 +33,7 @@ rule mark_duplicates_picard:
         )
 
     log:
-        "logs/dedup/{sequencing_sample_id}.log"
+        "logs/markdup/{sequencing_sample_id}.log"
 
     wrapper:
         "0.34.0/bio/picard/markduplicates"
