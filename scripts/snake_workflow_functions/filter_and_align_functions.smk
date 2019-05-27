@@ -54,7 +54,7 @@ def get_hisat2_reports(sequencing_samples, align_dirs):
     return hisat2_reports
 
 
-def get_markdups_reports(sequencing_samples, align_dirs):
+def get_mark_duplicates_reports(sequencing_samples, align_dirs):
     """
     The metrics file from picard MarkDuplicates is put into the same directory
     as the duplicate-marked bam file
