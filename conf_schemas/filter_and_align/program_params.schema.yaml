@@ -14,7 +14,16 @@ properties:
     featureCounts:
         type: string
 
+    picard:
+        properties:
+            MarkDuplicates:
+                type: string
+
+        required:
+          - MarkDuplicates
+
 required:
   - cutadapt-pe
   - hisat2
   - featureCounts
+  - picard

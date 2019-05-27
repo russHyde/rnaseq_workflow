@@ -17,6 +17,9 @@ properties:
   lane_id:
     type: string
 
+  flowcell_id:
+    type: string
+
   fq1:
     type: string
 
@@ -29,4 +32,5 @@ required:
   - sample_id
   - run_id
   - lane_id
+  - flowcell_id
   - fq1

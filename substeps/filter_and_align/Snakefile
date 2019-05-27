@@ -86,7 +86,17 @@ fastqc_dirs = {
 
 align_dirs = {
     "prefix": join(job_dir, "align"),
-    "initial": join(job_dir, "align")
+    "initial": join(job_dir, "align", "initial"),
+    "coordsort": join(job_dir, "align", "sort"),
+    "merge": join(job_dir, "align", "merge"),
+    "markdup": join(job_dir, "align", "markdup")
+}
+
+quantify_dirs = {
+    "input": align_dirs["markdup"],
+    "with_dups": join(job_dir, "quantify", "with_duplicates"),
+    "without_dups": join(job_dir, "quantify", "without_duplicates"),
+    "with_multimaps": join(job_dir, "quantify", "with_multimaps")
 }
 
 # -- required files
@@ -97,9 +107,11 @@ align_dirs = {
 feature_counts_files = expand(
     join(
         "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
-        "{unit.run_id}_{unit.lane_id}.fcount.short"
+        "{unit.run_id}.fcount.short"
     ),
-    directory_prefix=align_dirs["initial"],
+    directory_prefix=[
+        quantify_dirs[k] for k in ["with_dups", "without_dups", "with_multimaps"]
+    ],
     unit=sequencing_samples.itertuples()
 )
 
@@ -112,8 +124,16 @@ annotation_files = [
 #   (sample, run, lane, read direction)
 
 qc_reports = get_filter_and_align_reports(
-    sequencing_samples=sequencing_samples, read_dirs=read_dirs,
-    fastqc_dirs=fastqc_dirs, align_dirs=align_dirs
+    sequencing_samples=sequencing_samples,
+    # cutadapt reports for trimming reads
+    read_dirs=read_dirs,
+    # fastqc reports for raw reads and trimmed reads
+    fastqc_dirs=fastqc_dirs,
+    # hisat2 and markDuplicates reports for aligned samples
+    align_dirs=align_dirs,
+    # featureCounts reports for aligned samples (TODO: separate with_dups,
+    # without_dups and with_multimaps reports)
+    quantify_dirs=quantify_dirs
 )
 
 # A QC report that combines all single-sample QC reports
@@ -157,6 +177,10 @@ include: "scripts/snake_recipes/align_hisat2.smk"
 include: "scripts/snake_recipes/quantify_subread.smk"
 include: "scripts/snake_recipes/quality_fastqc.smk"
 include: "scripts/snake_recipes/quality_multiqc.smk"
+
+include: "scripts/snake_recipes/coordsort_picard.smk"
+include: "scripts/snake_recipes/mergesam_picard.smk"
+include: "scripts/snake_recipes/markduplicates_picard.smk"
 
 # -- local rules
 
