@@ -107,7 +107,7 @@ quantify_dirs = {
 feature_counts_files = expand(
     join(
         "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
-        "{unit.run_id}_{unit.lane_id}.fcount.short"
+        "{unit.run_id}.fcount.short"
     ),
     directory_prefix=[
         quantify_dirs[k] for k in ["with_dups", "without_dups", "with_multimaps"]
