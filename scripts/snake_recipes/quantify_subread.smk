@@ -58,11 +58,15 @@ rule feature_counts:
         bigfile = 1
 
     shell:
+        # We only count multimapping reads once when summarising using
+        # featureCOunts (--primary); this is for use in the QC report. We do
+        # this even if the multimapping reads don't enter into the output
+        # featureCounts tables
         """
-        featureCounts {params} \
+        featureCounts --primary {params} \
             -a {input.gtf_gz} -o {output.with_dups[0]} {input.bam};
 
-        featureCounts --ignoreDups {params} \
+        featureCounts --ignoreDup --primary {params} \
             -a {input.gtf_gz} -o {output.without_dups[0]} {input.bam};
 
         featureCounts -M --primary {params} \
