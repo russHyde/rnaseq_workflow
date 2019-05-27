@@ -86,10 +86,10 @@ fastqc_dirs = {
 
 align_dirs = {
     "prefix": join(job_dir, "align"),
-    "initial": join(job_dir, "align"),
-    "coordsort": join(job_dir, "sort"),
-    "merge": join(job_dir, "merge"),
-    "markdup": join(job_dir, "markdup")
+    "initial": join(job_dir, "align", "initial"),
+    "coordsort": join(job_dir, "align", "sort"),
+    "merge": join(job_dir, "align", "merge"),
+    "markdup": join(job_dir, "align", "markdup")
 }
 
 quantify_dirs = {
