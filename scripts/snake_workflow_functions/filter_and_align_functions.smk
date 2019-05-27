@@ -88,7 +88,7 @@ def get_feature_counts_reports(sequencing_samples, quantify_dirs):
 
 
 def get_filter_and_align_reports(
-        sequencing_samples, read_dirs, fastqc_dirs, align_dirs
+        sequencing_samples, read_dirs, fastqc_dirs, align_dirs, quantify_dirs
     ):
     """
     A `fastqc` report for each fastq.gz in the current dataset is generated
