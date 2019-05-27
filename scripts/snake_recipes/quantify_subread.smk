@@ -5,12 +5,46 @@ rule feature_counts:
         """
 
     input:
-        bam = "{prefix}.bam",
+        bam = os.path.join(
+            quantify_dirs["input"], "{sequencing_sample_id}.bam"
+        ),
         gtf_gz = reference_params["annotation"]
 
     output:
-        fcount = "{prefix}.fcount",
-        fcount_summary = "{prefix}.fcount.summary"
+        # For typical RNA-Seq analysis we want to quantify singly-mapping reads
+        # and include any readpairs that are marked as PCR duplicates (because
+        # they are typically due to high coverage over short highly-expressed
+        # genes, rather that to PCR-duplication)
+        with_dups = [
+            os.path.join(
+                quantify_dirs["with_dups"], "{sequencing_sample_id}.fcount"
+            ),
+            os.path.join(
+                quantify_dirs["with_dups"], "{sequencing_sample_id}.fcount.summary"
+            )
+        ],
+        # But for QC purposes, we want to know whether there are any genes that
+        # have wildly different coverage when we remove PCR-duplicates;
+        without_dups = [
+            os.path.join(
+                quantify_dirs["without_dups"], "{sequencing_sample_id}.fcount"
+            ),
+            os.path.join(
+                quantify_dirs["without_dups"], "{sequencing_sample_id}.fcount.summary"
+            )
+        ],
+        # And, by quantifying the primary alignments of all read pairs,
+        # including multi-mapping reads, we can assess the contribution of rRNA
+        # contamination etc to the total coverage (since rRNA reads align to
+        # various places in the genome)
+        with_multimaps = [
+            os.path.join(
+                quantify_dirs["with_multimaps"], "{sequencing_sample_id}.fcount"
+            ),
+            os.path.join(
+                quantify_dirs["with_multimaps"], "{sequencing_sample_id}.fcount.summary"
+            )
+        ]
 
     params:
         "{paired} {extra}".format(
@@ -25,7 +59,14 @@ rule feature_counts:
 
     shell:
         """
-        featureCounts {params} -a {input.gtf_gz} -o {output.fcount} {input.bam}
+        featureCounts {params} \
+            -a {input.gtf_gz} -o {output.with_dups[0]} {input.bam};
+
+        featureCounts --ignoreDups {params} \
+            -a {input.gtf_gz} -o {output.without_dups[0]} {input.bam};
+
+        featureCounts -M --primary {params} \
+            -a {input.gtf_gz} -o {output.with_multimaps[0]} {input.bam};
         """
 
 
