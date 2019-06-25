@@ -17,20 +17,24 @@ rule feature_counts:
         # genes, rather that to PCR-duplication)
         with_dups = [
             os.path.join(
-                quantify_dirs["with_dups"], "{sequencing_sample_id}.fcount"
+                quantify_dirs["with_dups"],
+                "{sequencing_sample_id}.fcount"
             ),
             os.path.join(
-                quantify_dirs["with_dups"], "{sequencing_sample_id}.fcount.summary"
+                quantify_dirs["with_dups"],
+                "{sequencing_sample_id}.fcount.summary"
             )
         ],
         # But for QC purposes, we want to know whether there are any genes that
         # have wildly different coverage when we remove PCR-duplicates;
         without_dups = [
             os.path.join(
-                quantify_dirs["without_dups"], "{sequencing_sample_id}.fcount"
+                quantify_dirs["without_dups"],
+                "{sequencing_sample_id}.fcount"
             ),
             os.path.join(
-                quantify_dirs["without_dups"], "{sequencing_sample_id}.fcount.summary"
+                quantify_dirs["without_dups"],
+                "{sequencing_sample_id}.fcount.summary"
             )
         ],
         # And, by quantifying the primary alignments of all read pairs,
@@ -39,10 +43,12 @@ rule feature_counts:
         # various places in the genome)
         with_multimaps = [
             os.path.join(
-                quantify_dirs["with_multimaps"], "{sequencing_sample_id}.fcount"
+                quantify_dirs["with_multimaps"],
+                "{sequencing_sample_id}.fcount"
             ),
             os.path.join(
-                quantify_dirs["with_multimaps"], "{sequencing_sample_id}.fcount.summary"
+                quantify_dirs["with_multimaps"],
+                "{sequencing_sample_id}.fcount.summary"
             )
         ]
 

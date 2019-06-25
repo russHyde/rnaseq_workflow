@@ -1,7 +1,8 @@
 def mergesam_input(wildcards):
     """
-    Lane-specific, aligned sequencing files are merged to generate a
-    sample/run-specific .bam file
+    Determine the set of lane-specific sequencing files for a given sequencing
+    sample. The lane-specific, aligned sequencing files will be merged to
+    generate a sample/run-specific .bam file
 
     Aligned samples should be coordinate-sorted
     """

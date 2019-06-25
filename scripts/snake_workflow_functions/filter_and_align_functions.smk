@@ -1,6 +1,30 @@
 # Helper functions for use in the snakemake workflow for the `filter_and_align`
 # substep.
 
+def get_samples_by_lane(sequencing_samples):
+    samples = expand(
+        join(
+            "{unit.study_id}", "{unit.sample_id}",
+            "{unit.run_id}_{unit.lane_id}",
+            unit=sequencing_samples.itertuples()
+        )
+    )
+    return list(set(samples))
+
+
+def get_samples_by_run(sequencing_samples):
+    # a sequencing sample identifier is of the form:
+    # "<study_id>/<sample_id>/<run_id>"
+    samples = expand(
+        join(
+            "{unit.study_id}", "{unit.sample_id}", "{unit.run_id}",
+            unit=sequencing_samples.itertuples()
+        )
+    )
+    return list(set(samples))
+
+###############################################################################
+
 def get_cutadapt_reports(sequencing_samples, read_dirs):
     """
     Each cutadapt run generates a pair of trimmed fastq files and a report
@@ -12,11 +36,10 @@ def get_cutadapt_reports(sequencing_samples, read_dirs):
     """
     cutadapt_reports = expand(
         join(
-            "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
-            "{unit.run_id}_{unit.lane_id}.qc.txt"
+            "{directory_prefix}", "{sample}.qc.txt"
         ),
         directory_prefix=read_dirs["trimmed"],
-        unit=sequencing_samples.itertuples()
+        sample=get_samples_by_lane(sequencing_samples)
     )
     return cutadapt_reports
 
@@ -24,11 +47,10 @@ def get_cutadapt_reports(sequencing_samples, read_dirs):
 def get_fastqc_reports(sequencing_samples, fastqc_dirs):
     fastqc_reports = expand(
         join(
-            "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
-            "{unit.run_id}_{unit.lane_id}_{read}_fastqc.{ext}"
+            "{directory_prefix}", "{sample}_{read}_fastqc.{ext}",
         ),
         directory_prefix=[fastqc_dirs["raw"], fastqc_dirs["trimmed"]],
-        unit=sequencing_samples.itertuples(),
+        sample=get_samples_by_lane(sequencing_samples),
         read=[1, 2],
         ext=["html", "zip"]
     )
@@ -45,11 +67,10 @@ def get_hisat2_reports(sequencing_samples, align_dirs):
     """
     hisat2_reports = expand(
         join(
-            "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
-            "{unit.run_id}_{unit.lane_id}.log"
+            "{directory_prefix}", "{sample}.log"
         ),
         directory_prefix=align_dirs["initial"],
-        unit=sequencing_samples.itertuples()
+        sample=get_samples_by_lane(sequencing_samples)
     )
     return hisat2_reports
 
@@ -64,13 +85,12 @@ def get_mark_duplicates_reports(sequencing_samples, align_dirs):
     """
     mark_duplicates_reports = expand(
         join(
-            "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
-            "{unit.run_id}.metrics"
+            "{directory_prefix}", "{sample}.metrics"
         ),
         directory_prefix=align_dirs["markdup"],
-        unit=sequencing_samples.itertuples()
+        sample=get_samples_by_run(sequencing_samples)
     )
-    return list(set(mark_duplicates_reports))
+    return mark_duplicates_reports
 
 
 def get_feature_counts_reports(sequencing_samples, quantify_dirs):
@@ -78,11 +98,10 @@ def get_feature_counts_reports(sequencing_samples, quantify_dirs):
     """
     fcounts_reports = expand(
         join(
-            "{directory_prefix}", "{unit.study_id}", "{unit.sample_id}",
-            "{unit.run_id}.fcount.summary"
+            "{directory_prefix}", "{sample}.fcount.summary",
         ),
         directory_prefix=quantify_dirs["with_dups"],
-        unit=sequencing_samples.itertuples()
+        sample=get_samples_by_run(sequencing_samples)
     )
     return list(set(fcounts_reports))
 
