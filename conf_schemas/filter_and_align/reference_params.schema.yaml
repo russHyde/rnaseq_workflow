@@ -29,8 +29,14 @@ properties:
     biomart_dataset:
         type: string
 
+    # a .bed12 file that defines the exons for each transcript
+    # - a subset of this file will be used to generate gene-coverage QC plots
+    transcript_bed12:
+        type: string
+
 required:
   - hisat2_index
   - annotation
   - annotation_version
   - biomart_dataset
+  - transcript_bed12

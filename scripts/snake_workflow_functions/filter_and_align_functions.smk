@@ -98,12 +98,24 @@ def get_feature_counts_reports(sequencing_samples, quantify_dirs):
     """
     fcounts_reports = expand(
         join(
-            "{directory_prefix}", "{sample}.fcount.summary",
+            "{directory_prefix}", "{sample}.fcount.summary"
         ),
         directory_prefix=quantify_dirs["with_dups"],
         sample=get_samples_by_run(sequencing_samples)
     )
     return fcounts_reports
+
+
+def get_rseqc_reports(sequencing_samples, rseqc_dirs):
+    """
+    gene-body coverage figures and data
+
+    TODO: Update when we know what the output filenames will be
+    """
+    report = join(
+        rseqc_dirs["prefix"], "unknown_output"
+    )
+    return [report]
 
 
 ###############################################################################
@@ -145,8 +157,11 @@ def get_filter_and_align_reports(
     fcounts_reports = get_feature_counts_reports(
         sequencing_samples=sequencing_samples, quantify_dirs=quantify_dirs
     )
+    rseqc_reports = get_rseqc_reports(
+        sequencing_samples=sequencing_samples, rseqc_dirs=rseqc_dirs
+    )
     return fastqc_reports + cutadapt_reports + hisat2_reports + \
-        markdup_reports + fcounts_reports
+        markdup_reports + fcounts_reports + rseqc_reports
 
 
 ###############################################################################
