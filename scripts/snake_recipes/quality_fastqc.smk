@@ -16,8 +16,8 @@ rule fastqc:
         os.path.join(read_dirs["prefix"], "{prefix}.fastq.gz")
 
     output:
-        html = os.path.join(fastqc_dirs["prefix"], "{prefix}_fastqc.html"),
-        zip = os.path.join(fastqc_dirs["prefix"], "{prefix}_fastqc.zip")
+        html = os.path.join(qc_dirs["fastqc"]["prefix"], "{prefix}_fastqc.html"),
+        zip = os.path.join(qc_dirs["fastqc"]["prefix"], "{prefix}_fastqc.zip")
 
     log:
         "logs/fastqc/{prefix}_fastqc.log"

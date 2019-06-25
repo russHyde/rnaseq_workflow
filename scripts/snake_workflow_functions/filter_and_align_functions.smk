@@ -112,10 +112,10 @@ def get_rseqc_reports(sequencing_samples, rseqc_dirs):
 
     TODO: Update when we know what the output filenames will be
     """
-    report = join(
+    rseqc_report = join(
         rseqc_dirs["prefix"], "unknown_output"
     )
-    return [report]
+    return [rseqc_report]
 
 
 ###############################################################################
