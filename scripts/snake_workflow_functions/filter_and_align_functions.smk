@@ -5,9 +5,9 @@ def get_samples_by_lane(sequencing_samples):
     samples = expand(
         join(
             "{unit.study_id}", "{unit.sample_id}",
-            "{unit.run_id}_{unit.lane_id}",
-            unit=sequencing_samples.itertuples()
-        )
+            "{unit.run_id}_{unit.lane_id}"
+        ),
+        unit=sequencing_samples.itertuples()
     )
     return list(set(samples))
 
@@ -18,8 +18,8 @@ def get_samples_by_run(sequencing_samples):
     samples = expand(
         join(
             "{unit.study_id}", "{unit.sample_id}", "{unit.run_id}",
-            unit=sequencing_samples.itertuples()
-        )
+        ),
+        unit=sequencing_samples.itertuples()
     )
     return list(set(samples))
 
@@ -103,11 +103,27 @@ def get_feature_counts_reports(sequencing_samples, quantify_dirs):
         directory_prefix=quantify_dirs["with_dups"],
         sample=get_samples_by_run(sequencing_samples)
     )
-    return list(set(fcounts_reports))
+    return fcounts_reports
+
+
+def get_rseqc_reports(sequencing_samples, rseqc_dirs):
+    """
+    gene-body coverage figures and data
+
+    TODO: Update when we know what the output filenames will be
+    """
+    report = os.path.join(
+        rseqc_dirs["prefix"], "unknown_output"
+    )
+    return [report]
+
+
+###############################################################################
 
 
 def get_filter_and_align_reports(
-        sequencing_samples, read_dirs, fastqc_dirs, align_dirs, quantify_dirs
+        sequencing_samples, read_dirs, fastqc_dirs, align_dirs, quantify_dirs,
+        rseqc_dirs
     ):
     """
     A `fastqc` report for each fastq.gz in the current dataset is generated
@@ -141,5 +157,11 @@ def get_filter_and_align_reports(
     fcounts_reports = get_feature_counts_reports(
         sequencing_samples=sequencing_samples, quantify_dirs=quantify_dirs
     )
+    rseqc_reports = get_rseqc_reports(
+        sequencing_samples=sequencing_samples, rseqc_dirs=rseqc_dirs
+    )
     return fastqc_reports + cutadapt_reports + hisat2_reports + \
-        markdup_reports + fcounts_reports
+        markdup_reports + fcounts_reports + rseqc_reports
+
+
+###############################################################################
