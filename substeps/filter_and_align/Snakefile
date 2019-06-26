@@ -196,26 +196,6 @@ include: "scripts/snake_recipes/querysort_picard.smk"
 include: "scripts/snake_recipes/mergesam_picard.smk"
 include: "scripts/snake_recipes/markduplicates_picard.smk"
 
-# -- local rules
+include: "scripts/snake_recipes/ensembl_gene_details.smk"
 
-rule ensembl_gene_details:
-    message:
-        """
-        --- Extract gene-information from ensembl database and ensembl gtf: GC
-            content, gene-type etc
-        """
-
-    input:
-        gtf = ancient(reference_params["annotation"])
-
-    output:
-        tsv = os.path.join(
-            job_dir, "annotations", "ensembl_gene_details.tsv"
-        )
-
-    params:
-        ensembl_version = reference_params["annotation_version"],
-        ensembl_dataset = reference_params["biomart_dataset"]
-
-    script:
-        "scripts/snake_recipes/get_ensembl_gene_details.smk.R"
+###############################################################################
