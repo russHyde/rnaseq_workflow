@@ -26,11 +26,18 @@ rule mark_duplicates_picard:
             align_dirs["markdup"], "{sequencing_sample_id}.bai"
         )
 
+    resources:
+        mem=4
+
     params:
-        "{} {} {} {}".format(
-            program_params["picard"]["MarkDuplicates"],
-            "TMP_DIR=temp", "ASSUME_SORT_ORDER=coordinate", "CREATE_INDEX=true"
-        )
+        lambda wildcards, resources: \
+            "-Xmx {}G {} {} {} {}".format(
+                resources["mem"],
+                program_params["picard"]["MarkDuplicates"],
+                "TMP_DIR=temp",
+                "ASSUME_SORT_ORDER=coordinate",
+                "CREATE_INDEX=true"
+            )
 
     log:
         "logs/markdup/{sequencing_sample_id}.log"
