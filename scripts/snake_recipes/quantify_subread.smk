@@ -8,7 +8,7 @@ rule feature_counts:
         bam = os.path.join(
             quantify_dirs["input"], "{sequencing_sample_id}.bam"
         ),
-        gtf_gz = reference_params["annotation"]
+        gtf_gz = ancient(reference_params["annotation"])
 
     output:
         # For typical RNA-Seq analysis we want to quantify singly-mapping reads

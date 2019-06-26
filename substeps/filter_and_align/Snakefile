@@ -206,7 +206,7 @@ rule ensembl_gene_details:
         """
 
     input:
-        gtf = reference_params["annotation"]
+        gtf = ancient(reference_params["annotation"])
 
     output:
         tsv = os.path.join(
