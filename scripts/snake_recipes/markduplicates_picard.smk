@@ -31,7 +31,7 @@ rule mark_duplicates_picard:
 
     params:
         lambda wildcards, resources: \
-            "-Xmx {}G {} {} {} {}".format(
+            "-Xmx{}G {} {} {} {}".format(
                 resources["mem"],
                 program_params["picard"]["MarkDuplicates"],
                 "TMP_DIR=temp",
