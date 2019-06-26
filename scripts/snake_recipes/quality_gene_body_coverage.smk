@@ -1,23 +1,32 @@
+import re
+
+
 def get_subsampled_bed():
-    return os.path.join(qc_dirs["rseqc"], "subsampled.bed12")
+    return os.path.join(qc_dirs["rseqc"]["prefix"], "subsampled.bed12")
 
 
 def gene_body_coverage_input(wildcards):
     """
-    `gene_body_coverage` takes a set of bam files, each with a ".bam.bai",
-    samtools-style, index and a .bed12-file defining a set of transcripts.
+    `gene_body_coverage` takes a set of "*.bam" files, each with a "*.bai",
+    index and a `.bed12`-file defining a set of transcripts.
+
+    The program geneBody_coverage.py requires samtools-style indexes
+    (`*.bam.bai`) rather than the picard-style indexes (`*.bai`) that we use
+    here; and so we make links from `*.bam.bai` to `*.bai` within the
+    `gene_body_coverage` rule
     """
 
     samples = get_samples_by_run(sequencing_samples)
 
-    bams = expand(
+    prefixes = expand(
         os.path.join(
-            align_dirs["markdup"], "{sequencing_sample_id}.bam",
-            sequencing_sample_id=samples
-        )
+            align_dirs["markdup"], "{sequencing_sample_id}"
+        ),
+        sequencing_sample_id=samples
     )
 
-    bam_indexes = [s + ".bai" for s in bams]
+    bams = [s + ".bam" for s in prefixes]
+    bam_indexes = [s + ".bai" for s in prefixes]
 
     bed12 = get_subsampled_bed()
 
@@ -39,54 +48,54 @@ rule gene_body_coverage:
         """
 
     input:
-        # bais must be specified in samtools format (*.bam.bai) to be
-        # recognised by `geneBody_coverage.py`
-        gene_body_coverage_input
+        # bais are specified in picard format (*.bai) but used in samtools
+        # format (*.bam.bai) within `geneBody_coverage.py`
+        unpack(gene_body_coverage_input)
 
     output:
-        # TODO: determine explicit files that are output by
-        # `geneBody_coverage.py` for a set of bams
-        directory(
-            os.path.join(qc_dirs["rseqc"]["prefix"], "gene_body_coverage")
-        )
+        # If multiple bams are passed in, this rule also makes *.heatmap.pdf
+        get_rseqc_reports(sequencing_samples, qc_dirs["rseqc"])
 
     params:
         # TODO: extract program-specific parameters
         # compute a comma-separated string of bam files
-        bam_string = lambda wildcards, input: ",".join(input["bams"])
+        bam_string = \
+            lambda wildcards, input: ",".join(input["bams"]),
+        bam_prefixes = \
+            lambda wildcards, input: [re.sub("\.bam$", "", bam) for bam in input["bams"]],
+        output_prefix = os.path.join(
+            qc_dirs["rseqc"]["gene_body_coverage"], "rnaseq"
+        )
 
     conda:
         "../../envs/rseqc.yaml"
 
     shell:
+        # geneBody_coverage requires samtools-style *.bam.bai indexes for each
+        # bam file, but we only create picard-style *.bai indexes. Hence, to
+        # get this rule to run, we make a link from a samtools-style bam index
+        # to the picard-style index before calling geneBody_coverage
+        #
+        # We do this here, rather than adding a rule that creates the
+        # samtools-style link because if I add a rule that creates *.bam.bai
+        # given *.bai it creates weird dependencies in the workflow. For
+        # example, snakemake might start looking for a sample with
+        # run_id="some_prefix.bam"
         """
-        geneBody_coverage.py -r {bed12} -i {params.bam_string} -o {output}
-        """
+        for file_prefix in {params.bam_prefixes};
+        do
+          picard="${{file_prefix}}.bai";
+          samtools="${{file_prefix}}.bam.bai";
+          if [[ ! -f "${{samtools}}" ]];
+          then
+            ln -rs "${{picard}}" "${{samtools}}";
+          fi
+        done;
 
-
-rule samtools_formatted_bai_links:
-    message:
-        """
-        --- Our default index for a `*.bam` file is of form `*.bai`, but some
-            programs require a `samtools`-style index `*.bam.bai`
-        """
-
-    input:
-        bam = os.path.join(
-            align_dirs["markdup"], "{sequencing_sample_id}.bam"
-        ),
-        bai = os.path.join(
-            align_dirs["markdup"], "{sequencing_sample_id}.bai"
-        )
-
-    output:
-        bai = os.path.join(
-            align_dirs["markdup"], "{sequencing_sample_id}.bam.bai"
-        )
-
-    shell:
-        """
-        ln -rs {input.bai} {output.bai} && touch -h {output.bai}
+        geneBody_coverage.py \
+          -r {input.bed12} \
+          -i {params.bam_string} \
+          -o {params.output_prefix}
         """
 
 

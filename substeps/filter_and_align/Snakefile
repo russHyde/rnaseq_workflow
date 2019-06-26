@@ -85,7 +85,8 @@ qc_dirs = {
     "trimmed": join(job_dir, "fastqc", "trimmed_fastqs")
   },
   "rseqc": {
-    "prefix": join(job_dir, "rseqc")
+    "prefix": join(job_dir, "rseqc"),
+    "gene_body_coverage": join(job_dir, "rseqc", "gene_body_coverage")
   },
   "multiqc": {
     "prefix": join(job_dir, "multiqc")

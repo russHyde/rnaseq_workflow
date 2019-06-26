@@ -112,10 +112,14 @@ def get_rseqc_reports(sequencing_samples, rseqc_dirs):
 
     TODO: Update when we know what the output filenames will be
     """
-    rseqc_report = join(
-        rseqc_dirs["prefix"], "unknown_output"
+    rseqc_reports = expand(
+        join(
+            rseqc_dirs["gene_body_coverage"],
+            "rnaseq.geneBodyCoverage.{suffix}"
+        ),
+        suffix=["curves.pdf", "r", "txt"]
     )
-    return [rseqc_report]
+    return rseqc_reports
 
 
 ###############################################################################
