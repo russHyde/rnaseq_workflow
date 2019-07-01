@@ -367,10 +367,9 @@ dge$samples$rrna.size <- dge[dge$genes$gene_biotype == "rRNA", ] %>%
 ```{r, fig.width = 6.4}
 dge$samples %>%
   ggplot(
-    aes(x = lib.size, y = rrna.size, col = cml_sample, shape = seq_batch)
+    aes(x = lib.size, y = rrna.size, col = sample_id)
   ) +
-  geom_point() +
-  scale_colour_manual(values = theming$patient)
+  geom_point()
 ```
 
 
