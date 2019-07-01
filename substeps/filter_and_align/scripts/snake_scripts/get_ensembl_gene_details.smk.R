@@ -1,0 +1,1 @@
+../../../../scripts/snake_scripts/get_ensembl_gene_details.smk.R

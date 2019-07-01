@@ -25,7 +25,7 @@ get_database <- function(smk){
 }
 
 get_gene_df_from_gtf <- function(smk, reqd_columns){
-  gene_df <- smk@input[["gtf"]] %>%
+  gene_df <- smk@input[["gtf_gz"]] %>%
     parse_gtf() %>%
     get_genes_from_gtf() %>%
     as.data.frame()
