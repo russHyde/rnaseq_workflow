@@ -97,7 +97,7 @@ define_file_map <- function(dirs, seq_files) {
     dplyr::mutate(
       counts = file.path(
         dirs$counts, study_id, sample_id,
-        paste0(run_id, "_", lane_id, ".fcount.short")
+        paste0(run_id, ".fcount.short")
       )
     )
 }
@@ -185,7 +185,9 @@ dirs <- list(
 
 dirs$reads <- file.path(dirs$job_data, "reads")
 dirs$align <- file.path(dirs$job_data, "align")
-dirs$counts <- file.path(dirs$job_data, "align")
+dirs$counts <- file.path(
+  dirs$job_data, "quantify", "with_duplicates"
+)
 dirs$annotations <- file.path(dirs$job_data, "annotations")
 ```
 
