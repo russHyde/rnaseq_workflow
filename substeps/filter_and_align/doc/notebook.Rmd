@@ -52,7 +52,7 @@ pkgs <- c(
   # Bioconductor
   #  "biomaRt",
   #  "cqn",
-  #  "edgeR",
+   "edgeR",
 
   # My packages
   "reeq"
@@ -360,7 +360,7 @@ original RNA-Seq libraries).
 
 ```{r}
 dge$samples$rrna.size <- dge[dge$genes$gene_biotype == "rRNA", ] %>%
-  getCounts() %>%
+  edgeR::getCounts() %>%
   colSums()
 ```
 
