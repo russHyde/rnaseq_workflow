@@ -47,7 +47,7 @@ pkgs <- c(
   "readr",
   #  "stringr",
   "tibble",
-  #  "tidyr",
+  "tidyr",
 
   # Bioconductor
   #  "biomaRt",
@@ -86,14 +86,14 @@ gallery <- list()
 define_file_map <- function(dirs, seq_files) {
   stopifnot("counts" %in% names(dirs))
   stopifnot(
-    all(c("study_id", "sample_id", "run_id", "lane_id") %in% names(seq_files))
+    all(c("study_id", "sample_id", "run_id") %in% names(seq_files))
   )
   tibble::tibble(
     study_id = seq_files$study_id,
     sample_id = seq_files$sample_id,
-    run_id = seq_files$run_id,
-    lane_id = seq_files$lane_id
+    run_id = seq_files$run_id
   ) %>%
+    unique() %>%
     dplyr::mutate(
       counts = file.path(
         dirs$counts, study_id, sample_id,
@@ -119,50 +119,6 @@ make_sample_id <- function(sample_id, run_id) {
   make.names(
     paste(sample_id, run_id, sep = "__")
   )
-}
-```
-
-### Feature Counts
-
-```{r, echo = show_functions}
-get_feature_counts_by_lane <- function(file_map) {
-  # TODO: fix the workflow so that lanes are merged prior to featureCounts call
-  # Then replace any call to get_feature_counts_by_lane with
-  # `reeq::read_feature_counts`
-
-  stopifnot(
-    all(c("counts", "sample_id", "run_id", "lane_id") %in% colnames(file_map))
-  )
-
-  purrr::pmap_dfr(
-    file_map[c("counts", "sample_id", "run_id", "lane_id")],
-    function(
-                 counts, sample_id, run_id, lane_id) {
-      fcounts <- reeq:::read_single_feature_counts_file(counts)
-      names(fcounts)[3] <- "count"
-      sample_details <- tibble::tibble(
-        sample_id = sample_id, run_id = run_id, lane_id = lane_id
-      )
-      cbind(sample_details, fcounts)
-    }
-  )
-}
-```
-
-```{r}
-merge_feature_counts_over_lanes <- function(feature_counts_by_lane) {
-  feature_counts_by_lane %>%
-    dplyr::group_by(sample_id, run_id, feature_id, length) %>%
-    dplyr::summarise(count = sum(count)) %>%
-    # (sample_id, run_id, feature_id, length, count)
-    # want: (feature_id, length, sample_1, sample_2, ...)
-    dplyr::ungroup() %>%
-    dplyr::transmute(
-      feature_id, length,
-      sample_id = make_sample_id(sample_id, run_id),
-      count
-    ) %>%
-    tidyr::spread(sample_id, count)
 }
 ```
 
@@ -265,20 +221,19 @@ sample_df <- with(
 
 ## Feature-Counts
 
-The count data for each lane was read in and summed together to generate the
-count data for each sequencing sample.
-
+The count data for each sample was read in (this has already been summed over
+the relevant lanes).
 
 ```{r}
-feature_counts_by_lane <- get_feature_counts_by_lane(file_map)
+feature_counts <- reeq::read_feature_counts(
+  files = file_map$counts,
+  sample_ids = make_sample_id(file_map$sample_id, file_map$run_id)
+)
 ```
 
 ```{r}
-feature_counts <- merge_feature_counts_over_lanes(feature_counts_by_lane)
-```
-
-```{r}
-p <- feature_counts_by_lane %>%
+p <- feature_counts %>%
+  tidyr::gather(key = "sample_id", value = "count", -feature_id, -length) %>%
   group_by(feature_id) %>%
   summarise(
     mu = mean(log2(16 + count)), sd = sd(log2(16 + count))
@@ -371,5 +326,3 @@ dge$samples %>%
   ) +
   geom_point()
 ```
-
-
