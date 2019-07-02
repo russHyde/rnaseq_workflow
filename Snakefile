@@ -18,6 +18,7 @@ subworkflow qc:
 
 rule all:
     input:
+        "doc/filter_and_align/notebook.html",
         "doc/filter_and_align/fake_report.pdf",
         "doc/qc/fake_report.pdf"
 
@@ -25,6 +26,14 @@ make_link_wrapper = \
     """
     ln -rs {input} {output} && touch -h {output}
     """
+
+rule filter_and_align_notebook:
+    input:
+        filter_and_align("doc/notebook.html")
+    output:
+        "doc/filter_and_align/notebook.html"
+    shell:
+        make_link_wrapper
 
 rule filter_and_align_fake:
     input:
