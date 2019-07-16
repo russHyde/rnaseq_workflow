@@ -1,1 +1,0 @@
-../../../../scripts/snake_recipes/get_ensembl_gene_details.smk.R
