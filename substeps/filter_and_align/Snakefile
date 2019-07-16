@@ -162,9 +162,9 @@ multiqc_report = os.path.join(
 # example
 
 rmarkdown_report = os.path.join("doc", "notebook.html")
-rmarkdown_prereqs = [
-    # TODO: ensembl_gene_details.tsv, all fcount.short files
-]
+rmarkdown_prereqs = annotation_files + \
+    feature_counts_files + \
+    [config["sequencing_samples"]]
 rmarkdown_result_regexes = []
 rmarkdown_results = []
 
