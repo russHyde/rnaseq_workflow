@@ -175,7 +175,7 @@ is a one-one relationship between `run_id` and `sample_id`)
 
 ```{r}
 seq_files <- readr::read_tsv(
-  file.path(dirs$config, "sequencing_samples.tsv"),
+  file.path(dirs[["config"]], "sequencing_samples.tsv"),
   col_types = cols()
 )
 ```
