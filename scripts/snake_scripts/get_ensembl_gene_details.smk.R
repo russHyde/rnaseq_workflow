@@ -94,11 +94,12 @@ main <- function(smk){
   )
 
   # join the gc content to the gene-build metadata and write it to a file
-  results <- merge(
-    gc_percent, gene_df, by.x = "feature_id", by.y = "gene_id"
+  results <- gc_percent %>%
+  merge(
+    gene_df, by.x = "feature_id", by.y = "gene_id"
   ) %>%
   merge(
-    ens_annots, entrez_id_df, by = "feature_id", all.x = TRUE
+    entrez_id_df, by = "feature_id", all.x = TRUE
   )
 
   readr::write_tsv(
