@@ -6,4 +6,3 @@
 
 # Example:
 # ../infx_scripts/r_functions/rh_data_manipulation.R
-# ./lib/global_rfuncs/R/rh_data_manipulation.R
