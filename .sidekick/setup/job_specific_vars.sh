@@ -17,7 +17,7 @@ set -o pipefail
 
 export JOBNAME=rnaseq_workflow
 export IS_R_REQUIRED=1
-export IS_R_PKG_REQUIRED=1
+export IS_R_PKG_REQUIRED=0
 export IS_JUPYTER_R_REQUIRED=0
 
 ###############################################################################
@@ -30,8 +30,7 @@ export IS_JUPYTER_R_REQUIRED=0
 
 if [[ ! -z "${IS_R_PKG_REQUIRED}" ]] && [[ ${IS_R_PKG_REQUIRED} -ne 0 ]];
 then
-  export PKGNAME=rnaseq_workflow
-  export R_INCLUDES_FILE="${PWD}/lib/conf/include_into_rpackage.txt"
+  export PKGNAME=rnaseq.workflow
 fi
 
 # ENVNAME is the name of the job-specific conda environment
